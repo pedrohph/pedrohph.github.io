@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "p5ble": "^0.0.7"
+  }
+}

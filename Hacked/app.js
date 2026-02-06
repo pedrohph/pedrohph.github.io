@@ -7,6 +7,15 @@ let averageBPM = -1;
 let devicesConnected = 0;
 
 let current_state = 0;
+let current_task = '-'
+let current_text_line1 = "PULSE OPP"
+let current_text_line2 = "TIL 130"
+
+let time_left = 3599;
+let lastTime = new Date();
+let deltaTime = 0;
+let start_timer = false;
+
 
 const canvas = document.getElementById("main-canvas")
 const context = canvas.getContext("2d")
@@ -24,7 +33,7 @@ let textBoxRightBottom;
 setup();
 
 function setup() {
-  navigator.permissions.query({ name: "bluetooth" }).then(console.log("Ok")).catch("Error!")
+  navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
   loadBoxes()
@@ -34,23 +43,20 @@ function setup() {
 
 function update(){
   requestAnimationFrame(update)
+  calculateDeltaTime()
+
+  if(start_timer)
+    time_left -= deltaTime
+
   context.clearRect(0, 0, canvas.width, canvas.height);
 
   drawBackground()
   drawGoalImages()
   getHigherAndLower()
-  // bpm_values.forEach(bpm => {
-  //   console.log(bpm)
-  // });
-  // console.log("H = "+higherBPM)
-  // console.log("L = "+lowerBPM)
-  // console.log("A = "+averageBPM)
-  
-  // console.log("Total devices connected: "+devicesConnected)
+  console.log("Total devices connected: "+devicesConnected)
 
   checkObjective()
 
-  context.alig
   context.fillStyle = "green";
   context.strokeStyle = "black";
   context.textAlign = "center";
@@ -72,21 +78,16 @@ function update(){
     context.fillText("L: --",  canvas.width - 935 * 0.25, canvas.height*0.62+50)
 
   }
-
-  // context.fillText("PULSEN OPP", 700, 200)
-  // context.fillText("TIL 130", 700, 250)
+  context.font = "normal 75px Alarm_Clock";
+  context.fillText((Math.floor((time_left % 3600) / 60).toString().padStart(2, '0'))+":"+(Math.floor(time_left) % 60).toString().padStart(2, '0'),  canvas.width * 0.14, canvas.height*0.57)
 
   context.fillStyle = "white";
-   context.font = "normal 50px Alarm_Clock";
-  if(current_state == 0){
-
-      context.fillText("PULSEN OPP", canvas.width/2, canvas.height/2 - 125)
-      context.fillText("TIL 110", canvas.width/2, canvas.height/2 - 75)
-  }else{
-    context.fillText("OPPGAVE B", canvas.width/2, canvas.height/2 - 125)
-  }
+  context.font = "normal 50px Alarm_Clock";
+  context.fillText(current_text_line1, canvas.width/2, canvas.height/2 - 125)
+  context.fillText(current_text_line2, canvas.width/2, canvas.height/2 - 75)
 
 
+  
 }
 
 function getHigherAndLower(){
@@ -122,18 +123,19 @@ function getHigherAndLower(){
 function checkObjective(){
   switch(current_state){
     case 0:
-      if(averageBPM >= 110 && averageBPM > 0){
-        console.log("First task complete!")
+      if(averageBPM >= 130 && averageBPM > 0){
+        current_text_line1 = "OPPGAVEN B"
+        current_text_line2 = ""
         current_state = 1;
+        current_task = 'b';
       }
       break;
-    case 1:
-      current_state = 2;
-       console.log("Second task start")
-      break;
     case 2:
-      if(averageBPM < 90 && averageBPM > 0){
-        console.log("Second task complete!")
+      if(averageBPM <= 90 && averageBPM > 0){
+         current_text_line1 = "OPPGAVEN F"
+        current_text_line2 = ""
+        current_state = 3;
+        current_task = 'f';
       }
       break;
   }
@@ -184,7 +186,10 @@ function drawGoalImages(){
     return;
   }
 
-  if(current_state == 0){
+  if(current_state == 4){
+    return;
+  }
+  if(current_state % 2 == 0){
     context.drawImage(centerImagePulse, canvas.width * 0.5 - 981*0.2, canvas.height * 0.5 -  970*0.2 , 981*0.4, 970*0.4);
   }else{
     context.drawImage(centerImageEnvelope, canvas.width * 0.5 - 981*0.2, canvas.height * 0.5 -  970*0.2 , 981*0.4, 970*0.4);
@@ -209,10 +214,40 @@ canvas.addEventListener('click', (event) => {
    GetBluetoothPermission()
 })
 
-canvas.addEventListener("touchstart", (event) => {
-  //  console.log("Tocou")
-  //  GetBluetoothPermission()
-}, false)
+// canvas.addEventListener("touchstart", (event) => {
+//   //  console.log("Tocou")
+//   //  GetBluetoothPermission()
+// }, false)
+
+document.addEventListener('keydown', function(event) {
+  completeQuest(event.key)
+});
+
+function completeQuest(key){
+  if(current_task=='-'){
+    return;
+  }
+  if(key == current_task){
+    current_text_line2 = "RIKTIG"
+
+    if(current_task == 'b'){
+      current_text_line1 = "PULSEN NED"
+      current_text_line2 = "TIL 90"
+    }else{
+      current_text_line1 = "TID:"
+      console.log(time_left)
+      let m = 3599 - time_left;
+      let s = 3599 - time_left;
+      current_text_line2 = (Math.floor((m)/ 60).toString().padStart(2, '0'))+":"+(Math.ceil(s) % 60).toString().padStart(2, '0');
+      start_timer = false;
+    }
+
+   current_task = '-'
+   current_state += 1;
+  }else{
+    current_text_line2 = "FEIL"
+  }
+}
 
 function GetBluetoothPermission(){
   //Bluetooth
@@ -241,6 +276,7 @@ navigator.bluetooth
           }
           if (heart_rate_measurement.properties.notify) {
             console.log("Notify")
+            start_timer = true;
               heart_rate_measurement.addEventListener(
               "characteristicvaluechanged",
               async (event) => {
@@ -257,4 +293,10 @@ navigator.bluetooth
     });
   })
   .catch((error) => console.error(`Something went wrong. ${error}`));
+}
+
+function calculateDeltaTime(){
+    const currentTime = new Date();
+    deltaTime = (currentTime - lastTime) / 1000;
+    lastTime = currentTime;
 }

@@ -24,7 +24,7 @@ let textBoxRightBottom;
 setup();
 
 function setup() {
-  navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
+  navigator.permissions.query({ name: "bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
   loadBoxes()

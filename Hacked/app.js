@@ -9,7 +9,7 @@ let devicesConnected = 0;
 let current_state = 0;
 let current_task = '-'
 let current_text_line1 = "PULSE OPP"
-let current_text_line2 = "TIL 130"
+let current_text_line2 = "TIL 120"
 
 let time_left = 3599;
 let lastTime = new Date();
@@ -123,7 +123,7 @@ function getHigherAndLower(){
 function checkObjective(){
   switch(current_state){
     case 0:
-      if(averageBPM >= 130 && averageBPM > 0){
+      if(averageBPM >= 120 && averageBPM > 0){
         current_text_line1 = "OPPGAVEN B"
         current_text_line2 = ""
         current_state = 1;
@@ -131,7 +131,7 @@ function checkObjective(){
       }
       break;
     case 2:
-      if(averageBPM <= 90 && averageBPM > 0){
+      if(averageBPM <= 100 && averageBPM > 0){
          current_text_line1 = "OPPGAVEN F"
         current_text_line2 = ""
         current_state = 3;
@@ -232,7 +232,7 @@ function completeQuest(key){
 
     if(current_task == 'b'){
       current_text_line1 = "PULSEN NED"
-      current_text_line2 = "TIL 90"
+      current_text_line2 = "TIL 100"
     }else{
       current_text_line1 = "TID:"
       console.log(time_left)

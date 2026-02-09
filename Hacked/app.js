@@ -33,6 +33,7 @@ let textBoxRightBottom;
 setup();
 
 function setup() {
+  console.log("Version 0.0.1")
   navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720

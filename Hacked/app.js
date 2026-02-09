@@ -33,7 +33,7 @@ let textBoxRightBottom;
 setup();
 
 function setup() {
-  console.log("Version 0.0.1")
+  console.log("Version 0.0.2")
   navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -132,7 +132,7 @@ function checkObjective(){
       }
       break;
     case 2:
-      if(averageBPM <= 100 && averageBPM > 0){
+      if(averageBPM <= 90 && averageBPM > 0){
          current_text_line1 = "OPPGAVEN F"
         current_text_line2 = ""
         current_state = 3;
@@ -233,7 +233,7 @@ function completeQuest(key){
 
     if(current_task == 'b'){
       current_text_line1 = "PULSEN NED"
-      current_text_line2 = "TIL 100"
+      current_text_line2 = "TIL 90"
     }else{
       current_text_line1 = "TID:"
       console.log(time_left)

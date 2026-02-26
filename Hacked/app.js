@@ -157,7 +157,7 @@ function checkObjective(){
   }
 
   if(current_state % 4 == 0){
-    if(averageBPM >= 12 && averageBPM > 0){
+    if(averageBPM >= 120 && averageBPM > 0){
       current_state ++;
       current_password ++;
     }

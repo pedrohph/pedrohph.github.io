@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "howler": "^2.2.4",
     "p5ble": "^0.0.7"
   }
 }

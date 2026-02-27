@@ -1,3 +1,5 @@
+import Timer from "./classes/timer.js";
+
 let device_list = []
 let bpm_values = []
 
@@ -12,13 +14,14 @@ let current_password = -1;
 let current_text_line1 = "PULSE OPP"
 let current_text_line2 = "TIL 120"
 
-let passwords = ["Sjiraff", "Kardemommeby", "Brumlemann", "11", "Ape", "Krutt", "112111"]
+let typeBarAlpha = 1;
 
-let time_left = 3600;
+let passwords = ["Sjiraff", "Kardemommeby", "Brumlemann", "11", "Ape", "Krutt", "112111"]
+let fullCode = ""
+
+let timer = new Timer();
 let lastTime = new Date();
 let deltaTime = 0;
-let start_timer = false;
-
 
 const canvas = document.getElementById("main-canvas")
 const context = canvas.getContext("2d")
@@ -32,7 +35,7 @@ let textBoxBottom;
 let textBoxLeft;
 let textBoxRightTop;
 let textBoxRightBottom;
-let input;
+let inputBox;
 
 setup();
 
@@ -42,10 +45,9 @@ function setup() {
   canvas.width=1280
   canvas.height= 720
 
-  input = document.createElement('input');
-   input.onkeydown = handleEnter;
-  document.body.appendChild(input);
-  
+  inputBox = document.createElement('input');
+  inputBox.onkeydown = handleEnter;
+  document.body.appendChild(inputBox);
 
   loadBoxes()
   update();
@@ -57,22 +59,12 @@ function update(){
   calculateDeltaTime()
 
   if(current_state % 2 == 1){
-    input.focus();
+    inputBox.focus();
   }else{ 
-    input.blur();
-  }
-  
-
-
-  if(start_timer){
-    time_left -= deltaTime
-
-    if(time_left <= 0){
-      //Alert time over
-      start_timer = false;
-    }
+    inputBox.blur();
   }
 
+  timer.update(deltaTime);
   context.clearRect(0, 0, canvas.width, canvas.height);
 
   drawBackground()
@@ -88,7 +80,7 @@ function update(){
   context.lineWidth = 3;
   context.font = "normal 40px Alarm_Clock";
   context.fillText("TEAM PULS",  canvas.width - 905 * 0.25, canvas.height*0.5 - 450*0.23 )
-  context.fillText(averageBPM,  canvas.width - 905 * 0.25, canvas.height*0.5 - 450*0.23 + 50)
+  context.fillText(Math.round(averageBPM),  canvas.width - 905 * 0.25, canvas.height*0.5 - 450*0.23 + 50)
 
   if(higherBPM > 1){
     context.fillText("H: " +higherBPM,  canvas.width - 935 * 0.25, canvas.height*0.62)
@@ -104,7 +96,7 @@ function update(){
 
   }
   context.font = "normal 75px Alarm_Clock";
-  context.fillText((Math.floor(time_left / 60).toString().padStart(2, '0'))+":"+(Math.floor(time_left) % 60).toString().padStart(2, '0'),  canvas.width * 0.14, canvas.height*0.57)
+  context.fillText(timer.getTimeOnTimeFormat(),  canvas.width * 0.14, canvas.height*0.57)
 
   context.fillStyle = "white";
   context.font = "normal 50px Alarm_Clock";
@@ -114,7 +106,25 @@ function update(){
 
   context.fillStyle = "white";
   context.font = "normal 35px Alarm_Clock";
-  context.fillText(input.value.toUpperCase(), canvas.width/2, canvas.height - 50)
+    typeBarAlpha -= deltaTime;
+    if(typeBarAlpha < 0){
+      typeBarAlpha = 1;
+    }
+    context.fillText(fullCode.toUpperCase(), canvas.width/2, 80, 1500*0.5)
+  if (inputBox === document.activeElement && inputBox.value == "") {
+    context.fillStyle = "grey";
+    context.fillText("Skriv koden her".toUpperCase(), canvas.width/2, canvas.height - 50)
+
+    context.fillStyle = "rgba(100,100,100,"+typeBarAlpha+")";
+    context.fillText("|", canvas.width/2 + context.measureText("Skriv koden her ".toUpperCase()).width/2, canvas.height - 50)
+  }else if (inputBox === document.activeElement){
+    context.fillStyle = "white";
+    context.fillText(inputBox.value.toUpperCase(), canvas.width/2, canvas.height - 50)
+    context.fillStyle = "rgba(100,100,100,"+typeBarAlpha+")";
+    context.fillText("|", canvas.width/2 + context.measureText(inputBox.value.toUpperCase()).width/2, canvas.height - 50)
+
+  }
+  
 }
 
 function getHigherAndLower(){
@@ -151,20 +161,21 @@ function checkObjective(){
   if(current_state == 14){
     return;
   }
-  if(current_state % 2 != 0){
-    current_text_line1 = "OPPGAVEN "+taks_names[current_state];
-    current_text_line2 = ""
-  }
 
   if(current_state % 4 == 0){
     if(averageBPM >= 120 && averageBPM > 0){
       current_state ++;
       current_password ++;
+        current_text_line1 = "OPPGAVE "+taks_names[current_state];
+        current_text_line2 = ""
     }
   }else if(current_state % 4 == 2){
-    if(averageBPM <= 90 && averageBPM > 0){
+    if(averageBPM <= 95 && averageBPM > 0){
       current_state ++;
       current_password ++;
+
+      current_text_line1 = "OPPGAVE "+taks_names[current_state];
+      current_text_line2 = ""
     }
   }
   
@@ -215,9 +226,9 @@ function drawGoalImages(){
     return;
   }
 
-  if(current_state == 4){
-    return;
-  }
+  // if(current_state == 4){
+  //   return;
+  // }
   if(current_state % 2 == 0){
     context.drawImage(centerImagePulse, canvas.width * 0.5 - 981*0.2, canvas.height * 0.5 -  970*0.2 , 981*0.4, 970*0.4);
   }else{
@@ -256,30 +267,33 @@ function handleEnter(e) {
   if(current_state % 2 == 0){
     return;
   }
-    var keyCode = e.keyCode;
+//    var keyCode = e.keyCode;
 
     if(e.keyCode == 13){
-      completeQuest(input.value.toUpperCase() == passwords[current_password].toUpperCase());
-      input.value = ""
+      completeQuest(inputBox.value.toUpperCase() == passwords[current_password].toUpperCase());
+      inputBox.value = ""
     }
     
 }
 
 function completeQuest(rightPassword){
   if(rightPassword){
+    if(!isNaN(inputBox.value)){
+      fullCode += "#";
+    }
+    fullCode += inputBox.value.toUpperCase();
     current_text_line2 = "RIKTIG"
 
     if(current_password == 6){
-      
       current_text_line1 = "TID:"
-         console.log(time_left)
-        let m = 3600 - time_left;
-        let s = 3600 - time_left;
-        current_text_line2 = (Math.floor((m)/ 60).toString().padStart(2, '0'))+":"+(Math.ceil(s) % 60).toString().padStart(2, '0');
-        start_timer = false;
+        //  console.log(time_left)
+        // let m = 3600 - time_left;
+        // let s = 3600 - time_left;
+        // current_text_line2 = (Math.floor((m)/ 60).toString().padStart(2, '0'))+":"+(Math.ceil(s) % 60).toString().padStart(2, '0');
+        current_text_line2 = timer.getFinalTime()
     }else if(current_state % 4 == 1){
       current_text_line1 = "PULSEN NED"
-      current_text_line2 = "TIL 90"
+      current_text_line2 = "TIL 95"
     }else{
       current_text_line1 = "PULSEN OPP"
       current_text_line2 = "TIL 120"
@@ -318,7 +332,7 @@ navigator.bluetooth
           }
           if (heart_rate_measurement.properties.notify) {
             console.log("Notify")
-            start_timer = true;
+            timer.startTimer()
               heart_rate_measurement.addEventListener(
               "characteristicvaluechanged",
               async (event) => {

@@ -5,10 +5,10 @@ const sfx = {
     //     loop: true,
     //     autoplay: true,
     // }),
-    // time_over: new Howl({
-    //     volume: 0.25,
-    //     src:['assets/SFX/shovel.ogg']
-    // }),
+    timeOver: new Howl({
+        volume: 0.25,
+        src:['assets/sfx/last_task.mp3']
+    }),
     correctPassword: new Howl({
         src:['assets/sfx/password_correct.mp3']
     }),

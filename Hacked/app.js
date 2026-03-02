@@ -11,8 +11,8 @@ let devicesConnected = 0;
 let taks_names = ['B','B','C','C','G','G','A','A','F','F','D','D','E','E',]
 let current_state = 0;
 let current_password = -1;
-let current_text_line1 = "PULSE OPP"
-let current_text_line2 = "TIL 120"
+let current_text_line1 = "PULSEN OVER"
+let current_text_line2 = "120"
 
 let typeBarAlpha = 1;
 
@@ -37,10 +37,14 @@ let textBoxRightTop;
 let textBoxRightBottom;
 let inputBox;
 
+let feilText = false;
+let riktigText = false;
+let messageTime = 0;
+
 setup();
 
 function setup() {
-  console.log("Version 0.0.2")
+  console.log("Version 0.0.3")
   navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -58,7 +62,7 @@ function update(){
   requestAnimationFrame(update)
   calculateDeltaTime()
 
-  if(current_state % 2 == 1){
+  if(current_state % 2 == 1 && messageTime <= 0){
     inputBox.focus();
   }else{ 
     inputBox.blur();
@@ -74,7 +78,7 @@ function update(){
 
   checkObjective()
 
-  context.fillStyle = "green";
+  context.fillStyle = "rgb(0,255,0)";
   context.strokeStyle = "black";
   context.textAlign = "center";
   context.lineWidth = 3;
@@ -99,19 +103,42 @@ function update(){
   context.fillText(timer.getTimeOnTimeFormat(),  canvas.width * 0.14, canvas.height*0.57)
 
   context.fillStyle = "white";
-  context.font = "normal 50px Alarm_Clock";
+  context.font = "normal 50px Impact";
+  context.strokeText(current_text_line1, canvas.width/2, canvas.height/2 - 125)
+  context.strokeText(current_text_line2, canvas.width/2, canvas.height/2 - 75)
   context.fillText(current_text_line1, canvas.width/2, canvas.height/2 - 125)
   context.fillText(current_text_line2, canvas.width/2, canvas.height/2 - 75)
 
 
   context.fillStyle = "white";
-  context.font = "normal 35px Alarm_Clock";
-    typeBarAlpha -= deltaTime;
-    if(typeBarAlpha < 0){
-      typeBarAlpha = 1;
+  context.font = "normal 24px Sauber";
+  typeBarAlpha -= deltaTime;
+ 
+  if(typeBarAlpha < 0){
+    typeBarAlpha = 1;
+  }
+
+  if(messageTime > 0){
+      messageTime -= deltaTime
+      if(messageTime <= 0){
+        messageTime = 0;
+
+        riktigText = false;
+        feilText = false;
+      }
     }
+  
     context.fillText(fullCode.toUpperCase(), canvas.width/2, 80, 1500*0.5)
-  if (inputBox === document.activeElement && inputBox.value == "") {
+
+  // context.font = "normal 35px Alarm_Clock";
+  context.font = "normal 35px Sauber";
+  if(riktigText){
+    context.fillStyle = "rgb(0,255,0)";
+    context.fillText("RIKTIG", canvas.width/2 , canvas.height - 50)
+  }else if(feilText){
+        context.fillStyle = "rgb(255,0,0)";
+    context.fillText("FEIL", canvas.width/2, canvas.height - 50)
+  }else if (inputBox === document.activeElement && inputBox.value == "") {
     context.fillStyle = "grey";
     context.fillText("Skriv koden her".toUpperCase(), canvas.width/2, canvas.height - 50)
 
@@ -163,7 +190,7 @@ function checkObjective(){
   }
 
   if(current_state % 4 == 0){
-    if(averageBPM >= 120 && averageBPM > 0){
+    if(averageBPM >= 110 && averageBPM > 0){
       current_state ++;
       current_password ++;
         current_text_line1 = "OPPGAVE "+taks_names[current_state];
@@ -183,7 +210,7 @@ function checkObjective(){
 
 function loadBoxes(){
   boxCenter = new Image()
-  boxCenter.src = "assets/images/UI box center.png"
+  boxCenter.src = "assets/images/UI box center_blank.png"
 
   textBoxTop = new Image()
   textBoxTop.src = "assets/images/UI textbox top.png"
@@ -230,17 +257,18 @@ function drawGoalImages(){
   //   return;
   // }
   if(current_state % 2 == 0){
-    context.drawImage(centerImagePulse, canvas.width * 0.5 - 981*0.2, canvas.height * 0.5 -  970*0.2 , 981*0.4, 970*0.4);
+    context.drawImage(centerImagePulse, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
   }else{
-    context.drawImage(centerImageEnvelope, canvas.width * 0.5 - 981*0.2, canvas.height * 0.5 -  970*0.2 , 981*0.4, 970*0.4);
+    context.drawImage(centerImageEnvelope,  canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
   }
+  context.drawImage(boxCenter, canvas.width * 0.5 - 981*0.25, canvas.height * 0.5 -  970*0.25 , 981*0.5, 970*0.5);
+
 }
 
 function drawTextBoxes(){
   if(boxCenter == undefined){
     return;
   }
-  context.drawImage(boxCenter, canvas.width * 0.5 - 981*0.25, canvas.height * 0.5 -  970*0.25 , 981*0.5, 970*0.5);
   context.drawImage(textBoxTop, canvas.width * 0.5 - 1772*0.25, 0 , 1772*0.5, 265*0.5);
   context.drawImage(textBoxBottom, canvas.width * 0.5 - 1145*0.25, canvas.height - 237*0.5 , 1145*0.5, 237*0.5);
   context.drawImage(textBoxLeft, -50, canvas.height*0.6 - 937*0.25 , 854*0.5, 937*0.5);
@@ -277,31 +305,30 @@ function handleEnter(e) {
 }
 
 function completeQuest(rightPassword){
+  messageTime = 1;
   if(rightPassword){
     if(!isNaN(inputBox.value)){
       fullCode += "#";
     }
     fullCode += inputBox.value.toUpperCase();
-    current_text_line2 = "RIKTIG"
+    //current_text_line2 = "RIKTIG"
+    riktigText = true;
 
     if(current_password == 6){
       current_text_line1 = "TID:"
-        //  console.log(time_left)
-        // let m = 3600 - time_left;
-        // let s = 3600 - time_left;
-        // current_text_line2 = (Math.floor((m)/ 60).toString().padStart(2, '0'))+":"+(Math.ceil(s) % 60).toString().padStart(2, '0');
         current_text_line2 = timer.getFinalTime()
     }else if(current_state % 4 == 1){
-      current_text_line1 = "PULSEN NED"
-      current_text_line2 = "TIL 95"
+      current_text_line1 = "PULSEN UNDER"
+      current_text_line2 = "95"
     }else{
-      current_text_line1 = "PULSEN OPP"
-      current_text_line2 = "TIL 120"
+      current_text_line1 = "PULSEN OVER"
+      current_text_line2 = "120"
     }
     
     current_state ++;
   }else{
-    current_text_line2 = "FEIL"
+    //current_text_line2 = "FEIL"
+    feilText = true;
   }
 }
 

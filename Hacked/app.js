@@ -61,7 +61,7 @@ let CurrentStatus = Game_Status.ONBOARDING;
 setup();
 
 function setup() {
-  console.log("Version 0.0.4")
+  console.log("Version 0.0.5")
   navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -370,7 +370,7 @@ document.addEventListener('keydown', function(event) {
     setGameStatus(Game_Status.INTROVIDEO)
     // CurrentStatus = Game_Status.PLAYING
   }
-  if(event.ctrlKey && event.shiftKey && event.key === '@'){
+  if(event.ctrlKey && event.shiftKey && event.key === 'E'){
     if(current_state % 2 == 0 && current_state < 13){
       current_state ++;
       current_password ++;

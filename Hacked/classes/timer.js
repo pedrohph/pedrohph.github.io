@@ -24,7 +24,7 @@ class Timer{
         if(this.time_left <= 0){
             this.time_left = 0;
 
-            sfx.timerOver.play();
+           // sfx.timerOver.play();
         }
     }
     getTimeOnTimeFormat(){

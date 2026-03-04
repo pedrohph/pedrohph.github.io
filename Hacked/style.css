@@ -52,3 +52,15 @@
         margin: auto;
     }
   }
+
+  #Intro-Video{
+    position: absolute;
+    width: 100dvw;
+    height: 100dvh;
+    top: 0;
+    left: 0;
+  }
+
+  .video-focus{
+    z-index: 1;
+  }

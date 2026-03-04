@@ -61,7 +61,7 @@ let CurrentStatus = Game_Status.ONBOARDING;
 setup();
 
 function setup() {
-  console.log("Version 0.0.5")
+  console.log("Version 0.0.6")
   navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -279,52 +279,52 @@ function drawCodeBar(){
 }
 
 function drawInputBarText(){
-context.fillStyle = "white";
-context.font = "normal 35px Sauber";
+  context.fillStyle = "white";
+  context.font = "normal 35px Sauber";
 
 
-// if(CurrentStatus == Game_Status.ONBOARDING){
-//     context.font = "normal 25px Impact";
-//     context.fillText("Klikk for å koble til en enhet".toUpperCase(), canvas.width/2, canvas.height - 50)
-//     return;
-// }
+  // if(CurrentStatus == Game_Status.ONBOARDING){
+  //     context.font = "normal 25px Impact";
+  //     context.fillText("Klikk for å koble til en enhet".toUpperCase(), canvas.width/2, canvas.height - 50)
+  //     return;
+  // }
 
-typeBarAlpha -= deltaTime;
- 
-  if(typeBarAlpha < 0){
-    typeBarAlpha = 1;
-  }
-
-  if(specialMessageTimer > 0){
-    specialMessageTimer -= deltaTime
-    if(specialMessageTimer){
-      specialMessageTimer = 0;
-
-      specialMessageBottomBar = "";
-    }
-  }
+  typeBarAlpha -= deltaTime;
   
- 
-  if(specialMessageBottomBar != ""){
-    if(specialMessageBottomBar.toUpperCase() == "RIKTIG"){
-      context.fillStyle = "rgb(0,255,0)";
-    }else  if(specialMessageBottomBar.toUpperCase() == "FEIL"){
-      context.fillStyle = "rgb(255,0,0)";
+    if(typeBarAlpha < 0){
+      typeBarAlpha = 1;
     }
-    context.fillText(specialMessageBottomBar, canvas.width/2 , canvas.height - 50)
-  }else if (inputBox === document.activeElement && inputBox.value == "") {
-    context.fillStyle = "grey";
-    context.fillText("Skriv koden her".toUpperCase(), canvas.width/2, canvas.height - 50)
 
-    context.fillStyle = "rgba(100,100,100,"+typeBarAlpha+")";
-    context.fillText("|", canvas.width/2 + context.measureText("Skriv koden her ".toUpperCase()).width/2, canvas.height - 50)
-  }else if (inputBox === document.activeElement){
-    context.fillStyle = "white";
-    context.fillText(inputBox.value.toUpperCase(), canvas.width/2, canvas.height - 50)
-    context.fillStyle = "rgba(100,100,100,"+typeBarAlpha+")";
-    context.fillText("|", canvas.width/2 + context.measureText(inputBox.value.toUpperCase()).width/2, canvas.height - 50)
+    if(specialMessageTimer > 0){
+      specialMessageTimer -= deltaTime
+      if(specialMessageTimer <= 0){
+        specialMessageTimer = 0;
 
-  }
+        specialMessageBottomBar = "";
+      }
+    }
+    
+  
+    if(specialMessageBottomBar != ""){
+      if(specialMessageBottomBar.toUpperCase() == "RIKTIG"){
+        context.fillStyle = "rgb(0,255,0)";
+      }else  if(specialMessageBottomBar.toUpperCase() == "FEIL"){
+        context.fillStyle = "rgb(255,0,0)";
+      }
+      context.fillText(specialMessageBottomBar, canvas.width/2 , canvas.height - 50)
+    }else if (inputBox === document.activeElement && inputBox.value == "") {
+      context.fillStyle = "grey";
+      context.fillText("Skriv koden her".toUpperCase(), canvas.width/2, canvas.height - 50)
+
+      context.fillStyle = "rgba(100,100,100,"+typeBarAlpha+")";
+      context.fillText("|", canvas.width/2 + context.measureText("Skriv koden her ".toUpperCase()).width/2, canvas.height - 50)
+    }else if (inputBox === document.activeElement){
+      context.fillStyle = "white";
+      context.fillText(inputBox.value.toUpperCase(), canvas.width/2, canvas.height - 50)
+      context.fillStyle = "rgba(100,100,100,"+typeBarAlpha+")";
+      context.fillText("|", canvas.width/2 + context.measureText(inputBox.value.toUpperCase()).width/2, canvas.height - 50)
+
+    }
 }
 
 function drawTimer(){
@@ -368,6 +368,7 @@ document.addEventListener('keydown', function(event) {
   //Tornar um padrão mais prático
   if(event.code == 'Space' && CurrentStatus == Game_Status.ONBOARDING){
     setGameStatus(Game_Status.INTROVIDEO)
+    // setGameStatus(Game_Status.PLAYING)
     // CurrentStatus = Game_Status.PLAYING
   }
   if(event.ctrlKey && event.shiftKey && event.key === 'E'){

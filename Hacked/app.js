@@ -1,14 +1,18 @@
 import Timer from "./classes/timer.js";
+import sfx from "./classes/soundmanager.js";
 
 const Game_Status = Object.freeze({
   ONBOARDING: '0',
   PLAYING: '1',
   ENDSCREEN: '2',
   INTROVIDEO: '3',
-  ENDVIDEO: '4'
+  ENDVIDEO: '4',
+  BEFORESTART: '5',
+  TIMEBEFOREEND: '6'
 });
 
 const introVideo = document.getElementById('Intro-Video');
+const endVideo = document.getElementById('End-Video');
 
 let device_list = []
 let bpm_values = []
@@ -27,7 +31,7 @@ let current_text_line2 = "OVER 120"
 let bottom_text_line1 = "STRESSNIVÅET ØKER"
 let bottom_text_line2 = "UNDER TIDSPRESS"
 
-//SENK STRESSNIVÅET
+let totalUsedTime = "00:00"
 
 let typeBarAlpha = 1;
 
@@ -56,12 +60,27 @@ let inputBox;
 
 let specialMessageBottomBar = ""
 let specialMessageTimer = 0;
+let alphaFeil;
 
-let CurrentStatus = Game_Status.ONBOARDING;
+let CurrentStatus = Game_Status.BEFORESTART;
+
+let lionTimer = 0;
+let playLionSound = false;
+
+let alarmMessageTime = 0;
+let alarmMessageAlpha = 1;
+let alarmMessageVisible = true;
+
+let firstScreenImage
+let endTimer = 0;
+
 setup();
 
 function setup() {
-  console.log("Version 0.0.6")
+  sfx.natureSound.play()
+  sfx.tigerSound.play()
+
+  console.log("Version 0.0.7")
   navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -74,9 +93,22 @@ function setup() {
   update();
 }
 
+
 function update(){
   requestAnimationFrame(update)
   calculateDeltaTime()
+
+  if(CurrentStatus == Game_Status.BEFORESTART){
+    drawFirstImage() 
+    return;
+  }
+
+  if(CurrentStatus == Game_Status.TIMEBEFOREEND){
+    endTimer -= deltaTime;
+    if(endTimer <= 0){
+      setGameStatus(Game_Status.ENDVIDEO)
+    }
+  }
 
   if(current_state % 2 == 1 && specialMessageTimer <= 0){
     inputBox.focus();
@@ -87,6 +119,9 @@ function update(){
   timer.update(deltaTime);
   context.clearRect(0, 0, canvas.width, canvas.height);
 
+  if(lionTimer > 0){
+    lionTimer -= deltaTime;
+  }
 
   getHigherAndLower()
 
@@ -99,8 +134,6 @@ function update(){
   console.log("Total devices connected: "+devicesConnected)
 
   checkObjective()  
-
-  
 }
 
 function getHigherAndLower(){
@@ -137,28 +170,21 @@ function checkObjective(){
   if(current_state == 14){
     return;
   }
+  
+  if(playLionSound && lionTimer <= 0){
+      //90 seconds
+      playLionSound = true;
+      lionTimer = 90;
+      sfx.lastTaskSound.play()
+  }
 
   if(current_state % 4 == 0){
     if(averageBPM >= 120 && averageBPM > 0){
-      current_state ++;
-      current_password ++;
-        current_text_line1 = "OPPGAVE "+taks_names[current_state];
-        current_text_line2 = ""
-
-        bottom_text_line1 = ""
-        bottom_text_line2 = ""
+      completePulseTask()
     }
   }else if(current_state % 4 == 2){
-    if(averageBPM <= 95 && averageBPM > 0){
-      current_state ++;
-      current_password ++;
-
-      current_text_line1 = "OPPGAVE "+taks_names[current_state];
-      current_text_line2 = ""
-
-      
-      bottom_text_line1 = ""
-      bottom_text_line2 = ""
+    if(averageBPM <= 90 && averageBPM > 0){
+      completePulseTask();
     }
   }
   
@@ -199,6 +225,17 @@ function drawBackground(){
 
 }
 
+function drawFirstImage(){
+  if(firstScreenImage == undefined){
+    firstScreenImage = new Image()
+    firstScreenImage.src = "assets/images/hackedMessage.png"
+
+    return;
+  }
+
+   context.drawImage(firstScreenImage, 0, 0, canvas.width, canvas.height);
+}
+
 function drawGoalImages(){
   if(centerImagePulse == undefined){
     centerImagePulse = new Image()
@@ -212,8 +249,17 @@ function drawGoalImages(){
     return;
   }
 
-  if(CurrentStatus == 0 || CurrentStatus == 2){
+  if(CurrentStatus == Game_Status.ONBOARDING){
     context.drawImage(centerImageTiger, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
+    //drawOnboardingScreen()
+
+  }else if(CurrentStatus == Game_Status.ENDSCREEN){
+    context.drawImage(centerImageTiger, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
+    drawUsedTime();
+    drawEndingScreen();
+    //Draw Status Screen
+  }else if(CurrentStatus == Game_Status.TIMEBEFOREEND){
+    context.drawImage(centerImageEnvelope,  canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
   }else if(current_state % 2 == 0){
     context.drawImage(centerImagePulse, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
     drawTextOnCenter()
@@ -264,30 +310,44 @@ function drawPulseValues(){
   }
 }
 
+// function drawOnboardingScreen(){
+//   context.fillStyle = "white";
+
+//   context.font = "normal 30px Impact";
+//   context.fillText("Trykk på mellomromstasten for å starte".toUpperCase(), canvas.width/2, 80, 1500*0.5)
+
+//   context.font = "normal 25px Impact";
+//  context.fillText("Klikk for å koble til en enhet".toUpperCase(), canvas.width/2, canvas.height - 50)
+// }
+
+function drawEndingScreen(){
+  context.fillStyle = "white";
+
+  context.font = "normal 30px Impact";
+  context.fillText("GRATULERER DERE FANT KRYPTERINGSKODEN!".toUpperCase(), canvas.width/2, 80, 1500*0.5)
+
+  context.font = "normal 25px Impact";
+ context.fillText("DYREPARKEN/HACKED".toUpperCase(), canvas.width/2, canvas.height - 50)
+    
+}
+
 function drawCodeBar(){
+   if(CurrentStatus==Game_Status.ENDSCREEN){
+    return;
+  }
   context.fillStyle = "white";
   context.font = "normal 24px Sauber";
-
-  // if(CurrentStatus == Game_Status.ONBOARDING){
-  //   context.font = "normal 30px Impact";
-  //   context.fillText("Trykk på mellomromstasten for å starte".toUpperCase(), canvas.width/2, 80, 1500*0.5)
-  //   return;
-  // }
 
   typeBarAlpha -= deltaTime;
     context.fillText(fullCode.toUpperCase(), canvas.width/2, 80, 1500*0.5)
 }
 
 function drawInputBarText(){
+  if(CurrentStatus != Game_Status.PLAYING && CurrentStatus != Game_Status.TIMEBEFOREEND){
+    return;
+  }
   context.fillStyle = "white";
   context.font = "normal 35px Sauber";
-
-
-  // if(CurrentStatus == Game_Status.ONBOARDING){
-  //     context.font = "normal 25px Impact";
-  //     context.fillText("Klikk for å koble til en enhet".toUpperCase(), canvas.width/2, canvas.height - 50)
-  //     return;
-  // }
 
   typeBarAlpha -= deltaTime;
   
@@ -296,7 +356,12 @@ function drawInputBarText(){
     }
 
     if(specialMessageTimer > 0){
-      specialMessageTimer -= deltaTime
+      specialMessageTimer -= deltaTime 
+      alphaFeil -= deltaTime * 1.25;
+
+      if(alphaFeil <= 0){
+        alphaFeil = 1;
+      }
       if(specialMessageTimer <= 0){
         specialMessageTimer = 0;
 
@@ -309,7 +374,7 @@ function drawInputBarText(){
       if(specialMessageBottomBar.toUpperCase() == "RIKTIG"){
         context.fillStyle = "rgb(0,255,0)";
       }else  if(specialMessageBottomBar.toUpperCase() == "FEIL"){
-        context.fillStyle = "rgb(255,0,0)";
+        context.fillStyle = "rgba(255,0,0,"+alphaFeil+")";
       }
       context.fillText(specialMessageBottomBar, canvas.width/2 , canvas.height - 50)
     }else if (inputBox === document.activeElement && inputBox.value == "") {
@@ -328,12 +393,47 @@ function drawInputBarText(){
 }
 
 function drawTimer(){
+  if(CurrentStatus==Game_Status.ENDSCREEN){
+    return;
+  }
   context.fillStyle = "rgb(0,255,0)";
   context.font = "normal 75px Alarm_Clock";
   context.textAlign = "center";
 
-
   context.fillText(timer.getTimeOnTimeFormat(),  canvas.width * 0.14, canvas.height*0.57)
+
+  if(alarmMessageVisible){
+    alarmMessageTime -= deltaTime;
+    alarmMessageAlpha -= deltaTime * 1.25;
+
+    if(alarmMessageAlpha <= 0){
+      alarmMessageAlpha = 1;
+    }
+
+    if(alarmMessageTime <= 0){
+      alarmMessageVisible = false;
+      sfx.alarmSound.stop()
+    }
+  }
+
+   if(alarmMessageVisible){
+    context.fillStyle = "rgba(255,0,0,"+alarmMessageAlpha+")";
+    context.font = "normal 50px Alarm_Clock";
+    context.textAlign = "center";
+
+    context.fillText("HASTER!",  canvas.width * 0.14, canvas.height*0.65)
+  }
+}
+
+function drawUsedTime(){
+   context.fillStyle = "rgb(0,255,0)";
+  context.font = "normal 75px Alarm_Clock";
+  context.textAlign = "center";
+
+  context.fillText(totalUsedTime,  canvas.width * 0.14, canvas.height*0.57)
+
+  context.font = "normal 37px Alarm_Clock";
+  context.fillText("DERE BRUKTE",  canvas.width * 0.138, canvas.height*0.57 - 80)
 }
 
 function drawTextOnCenter(){
@@ -359,27 +459,20 @@ canvas.addEventListener('click', (event) => {
   }
 })
 
-// canvas.addEventListener("touchstart", (event) => {
-//   //  console.log("Tocou")
-//   //  GetBluetoothPermission()
-// }, false)
-
 document.addEventListener('keydown', function(event) {
   //Tornar um padrão mais prático
   if(event.code == 'Space' && CurrentStatus == Game_Status.ONBOARDING){
     setGameStatus(Game_Status.INTROVIDEO)
     // setGameStatus(Game_Status.PLAYING)
-    // CurrentStatus = Game_Status.PLAYING
+  }else  if(event.code == 'Space' && CurrentStatus == Game_Status.BEFORESTART){
+    setGameStatus(Game_Status.ONBOARDING)
   }
-  if(event.ctrlKey && event.shiftKey && event.key === 'E'){
-    if(current_state % 2 == 0 && current_state < 13){
-      current_state ++;
-      current_password ++;
-      current_text_line1 = "OPPGAVE "+taks_names[current_state];
-      current_text_line2 = ""
 
-      bottom_text_line1 = ""
-      bottom_text_line2 = ""
+  if(CurrentStatus == Game_Status.PLAYING){
+    if(event.ctrlKey && event.shiftKey && event.key === 'E'){
+      if(current_state % 2 == 0 && current_state < 13){
+        completePulseTask()
+      }
     }
   }
 });
@@ -397,36 +490,70 @@ function handleEnter(e) {
 }
 
 function completeQuest(rightPassword){
-  specialMessageTimer = 3;
   if(rightPassword){
     if(!isNaN(inputBox.value)){
       fullCode += "#";
     }
     fullCode += inputBox.value.toUpperCase();
     specialMessageBottomBar = "RIKTIG"
+    specialMessageTimer = 2;
 
+    sfx.correctPassword.play()
 
     if(current_password == 6){
-      current_text_line1 = "TID:"
-        current_text_line2 = timer.getFinalTime()
-    }else if(current_state % 4 == 1){
+      current_text_line1 = ""
+      current_text_line2 = ""
+      
+      totalUsedTime = timer.getFinalTime()
+      setGameStatus(Game_Status.TIMEBEFOREEND);
+      return;
+
+    }
+    
+    if(current_state % 4 == 1){
       current_text_line1 = "FÅ PULSEN"
-      current_text_line2 = "UNDER 95"
+      current_text_line2 = "UNDER 90"
 
       bottom_text_line1 = "SENK STRESSNIVÅET"
       bottom_text_line2 = ""
+      sfx.slowPulse.play()
+
     }else{
       current_text_line1 = "FÅ PULSEN"
       current_text_line2 = "OVER 120"
 
       bottom_text_line1 = "STRESSNIVÅET ØKER"
       bottom_text_line2 = "UNDER TIDSPRESS"
+      sfx.quickPulse.play()
     }
     
     current_state ++;
   }else{
+    specialMessageTimer = 3;
+    alphaFeil = 1;
     specialMessageBottomBar = "FEIL"
+    sfx.incorrectPassword.play()
   }
+}
+
+function completePulseTask(){
+    sfx.quickPulse.stop();
+    sfx.slowPulse.stop();
+      current_state ++;
+      current_password ++;
+      current_text_line1 = "OPPGAVE "+taks_names[current_state];
+      current_text_line2 = ""
+
+      bottom_text_line1 = ""
+      bottom_text_line2 = ""
+      
+      if(current_password == passwords.length -1){
+        lionTimer = 90;
+        playLionSound = true;
+      }
+
+      sfx.reachPulseLevel.play()
+      sfx.correctPassword.play()
 }
 
 function GetBluetoothPermission(){
@@ -493,9 +620,23 @@ function setGameStatus(newGameStatus){
   switch(CurrentStatus){
     case Game_Status.PLAYING:
       timer.startTimer();
+      sfx.quickPulse.play()
       break;
     case Game_Status.INTROVIDEO:
+      
+      sfx.natureSound.stop()
+      sfx.tigerSound.stop()
       startIntroVideo()
+      break;
+    case Game_Status.ENDVIDEO:
+      playLionSound = false;
+      startEndVideo()
+      break;
+    case Game_Status.ENDSCREEN:
+      sfx.aplauseSound.play()
+      break;
+    case Game_Status.TIMEBEFOREEND:
+      endTimer = 2;
       break;
   }
 }
@@ -514,4 +655,29 @@ function finishIntroVideo(event){
   introVideo.classList.remove("video-focus");
   setGameStatus(Game_Status.PLAYING)
 
+}
+
+function startEndVideo(){
+    endVideo.classList.add("video-focus")
+    
+    endVideo.play()
+    .then(() => console.log('Playback started'))
+    .catch(err => console.error('Playback failed:', err));
+
+   endVideo.addEventListener('ended',finishEndVideo,false);
+}
+
+function finishEndVideo(event){
+  endVideo.classList.remove("video-focus");
+  setGameStatus(Game_Status.ENDSCREEN)
+}
+
+document.addEventListener("TimeAlert", timeAlertMessage);
+
+function timeAlertMessage(){
+  sfx.alarmSound.play();
+
+  alarmMessageTime = 5;
+  alarmMessageAlpha = 1;
+  alarmMessageVisible = true;
 }

@@ -34,7 +34,7 @@ const sfx = {
 
     }),
     aplauseSound: new Howl({
-        src:['assets/sfx/driken5482-applause-cheer-236786.mp3']
+        src:['assets/sfx/aplausesSound.mp3']
     }),
     tigerSound: new Howl({
         src:['assets/sfx/sherimfal-tiger-light-roar-t-293716.mp3'],

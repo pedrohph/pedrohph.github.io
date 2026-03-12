@@ -45,6 +45,8 @@ let deltaTime = 0;
 const canvas = document.getElementById("main-canvas")
 const context = canvas.getContext("2d")
 
+let backgroundAlpha = 0;
+let upBackgroundAlpha = true;
 let backgroundImage;
 let centerImagePulse;
 let centerImageEnvelope;
@@ -221,6 +223,27 @@ function drawBackground(){
 
     context.drawImage(backgroundImage, 0,0, canvas.width, canvas.height);
 
+
+    if(upBackgroundAlpha){
+      backgroundAlpha += deltaTime * 0.2;
+      
+      if(backgroundAlpha >= 0.27){
+        backgroundAlpha = 0.27;
+        upBackgroundAlpha = false;
+      }
+    }else{
+      backgroundAlpha -= deltaTime * 0.22;
+
+      if(backgroundAlpha <= 0){
+        backgroundAlpha = 0;
+        upBackgroundAlpha = true;
+      }
+    }
+
+    
+    
+    context.fillStyle = "rgba(0,0,0,"+backgroundAlpha+")";
+    context.fillRect(0, 0, canvas.width, canvas.height);
     drawTextBoxes()
 
 }

@@ -25,7 +25,7 @@ let devicesConnected = 0;
 let taks_names = ['B','B','C','C','G','G','A','A','F','F','D','D','E','E',]
 let current_state = 0;
 let current_password = -1;
-let current_text_line1 = "FÅ PULSEN"
+let current_text_line1 = "FÅ LAGPULS"
 let current_text_line2 = "OVER 120"
 
 let bottom_text_line1 = "STRESSNIVÅET ØKER"
@@ -82,7 +82,7 @@ function setup() {
   sfx.natureSound.play()
   sfx.tigerSound.play()
 
-  console.log("Version 0.0.8")
+  console.log("Version 0.0.9")
   navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -185,7 +185,7 @@ function checkObjective(){
       completePulseTask()
     }
   }else if(current_state % 4 == 2){
-    if(averageBPM <= 90 && averageBPM > 0){
+    if(averageBPM <= 87 && averageBPM > 0){
       completePulseTask();
     }
   }
@@ -313,7 +313,7 @@ function drawPulseValues(){
   context.font = "normal 40px Alarm_Clock";
 
   //Average Pulse
-  context.fillText("TEAM PULS",  canvas.width - 905 * 0.25, canvas.height*0.5 - 450*0.23 )
+  context.fillText("LAGPULS",  canvas.width - 905 * 0.25, canvas.height*0.5 - 450*0.23 )
   context.fillText(Math.round(averageBPM),  canvas.width - 905 * 0.25, canvas.height*0.5 - 450*0.23 + 50)
 
   //Higher Pulse
@@ -370,7 +370,7 @@ function drawInputBarText(){
     return;
   }
   context.fillStyle = "white";
-  context.font = "normal 35px Sauber";
+  context.font = "normal 32px Sauber";
 
   typeBarAlpha -= deltaTime;
   
@@ -402,10 +402,10 @@ function drawInputBarText(){
       context.fillText(specialMessageBottomBar, canvas.width/2 , canvas.height - 50)
     }else if (inputBox === document.activeElement && inputBox.value == "") {
       context.fillStyle = "grey";
-      context.fillText("Skriv koden her".toUpperCase(), canvas.width/2, canvas.height - 50)
+      context.fillText("SKRIV INN ORD ELLER TALL".toUpperCase(), canvas.width/2, canvas.height - 50)
 
       context.fillStyle = "rgba(100,100,100,"+typeBarAlpha+")";
-      context.fillText("|", canvas.width/2 + context.measureText("Skriv koden her ".toUpperCase()).width/2, canvas.height - 50)
+      context.fillText("|", canvas.width/2 + context.measureText("SKRIV INN ORD ELLER TALL ".toUpperCase()).width/2, canvas.height - 50)
     }else if (inputBox === document.activeElement){
       context.fillStyle = "white";
       context.fillText(inputBox.value.toUpperCase(), canvas.width/2, canvas.height - 50)
@@ -534,15 +534,15 @@ function completeQuest(rightPassword){
     }
     
     if(current_state % 4 == 1){
-      current_text_line1 = "FÅ PULSEN"
-      current_text_line2 = "UNDER 90"
+      current_text_line1 = "FÅ LAGPULS"
+      current_text_line2 = "UNDER 87"
 
       bottom_text_line1 = "SENK STRESSNIVÅET"
       bottom_text_line2 = ""
       sfx.slowPulse.play()
 
     }else{
-      current_text_line1 = "FÅ PULSEN"
+      current_text_line1 = "FÅ LAGPULS"
       current_text_line2 = "OVER 120"
 
       bottom_text_line1 = "STRESSNIVÅET ØKER"

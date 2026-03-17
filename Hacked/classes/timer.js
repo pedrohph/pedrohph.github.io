@@ -60,7 +60,14 @@ class Timer{
         let m = this.starter_time - this.time_left;
         let s = this.starter_time - this.time_left;
         return Math.floor((m)/ 60).toString().padStart(2, '0')+":"+(Math.ceil(s) % 60).toString().padStart(2, '0');
- 
+    }
+
+    reduceTime(totalSeconds){
+        document.dispatchEvent(this.lessTimeEvent);
+        this.time_left -= totalSeconds;
+        if(this.time_left <= 0){
+            this.time_left = 0;
+        }
     }
 
     alertEvent = new Event('TimeAlert', {
@@ -69,6 +76,11 @@ class Timer{
         composed: true
     });
 
+    lessTimeEvent = new Event('LessTimeAlert',{
+        bubbles: true,
+        cancelable: true,
+        composed: true
+    })
 }
 
 export default Timer;

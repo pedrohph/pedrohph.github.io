@@ -22,7 +22,7 @@ let lowerBPM = 256;
 let averageBPM = -1;
 let devicesConnected = 0;
 
-let taks_names = ['B','B','C','C','G','G','A','A','F','F','D','D','E','E',]
+let taks_names = ['B','B','C','C','G','G','A','A','H','H','F','F','D','D','E','E',]
 let current_state = 0;
 let current_password = -1;
 let current_text_line1 = "FÅ LAGPULS"
@@ -35,7 +35,7 @@ let totalUsedTime = "00:00"
 
 let typeBarAlpha = 1;
 
-let passwords = ["Sjiraff", "Kardemommeby", "Brumlemann", "11", "Ape", "Krutt", "112111"]
+let passwords = [["SJIRAFF"], ["KARDEMOMMEBY","BADELAND"], ["BRUMLEMANN"], ["11"], ["KNELER"] ,["APE"], ["KRUTT"], ["112111"]]
 let fullCode = ""
 
 let timer = new Timer();
@@ -73,6 +73,10 @@ let alarmMessageTime = 0;
 let alarmMessageAlpha = 1;
 let alarmMessageVisible = true;
 
+let recudeTimeAlarmTime = 0;
+let reduceTimeAlarmAlpha = 1;
+let reduceTimeAlarmVisible = false;
+
 let firstScreenImage
 let endTimer = 0;
 
@@ -82,7 +86,7 @@ function setup() {
   sfx.natureSound.play()
   sfx.tigerSound.play()
 
-  console.log("Version 0.0.9")
+  console.log("Version 0.0.9b")
   navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -169,7 +173,7 @@ function getHigherAndLower(){
 }
 
 function checkObjective(){
-  if(current_state == 14){
+  if(current_state == 16){
     return;
   }
   
@@ -419,7 +423,12 @@ function drawTimer(){
   if(CurrentStatus==Game_Status.ENDSCREEN){
     return;
   }
-  context.fillStyle = "rgb(0,255,0)";
+  if(reduceTimeAlarmVisible){
+    context.fillStyle = "rgb(255,0,0)"; 
+
+  }else{
+    context.fillStyle = "rgb(0,255,0)";
+  }
   context.font = "normal 75px Alarm_Clock";
   context.textAlign = "center";
 
@@ -439,12 +448,33 @@ function drawTimer(){
     }
   }
 
-   if(alarmMessageVisible){
+  if(alarmMessageVisible){
     context.fillStyle = "rgba(255,0,0,"+alarmMessageAlpha+")";
     context.font = "normal 50px Alarm_Clock";
     context.textAlign = "center";
 
     context.fillText("HASTER!",  canvas.width * 0.14, canvas.height*0.65)
+  }
+
+   if(reduceTimeAlarmVisible){
+    recudeTimeAlarmTime -= deltaTime;
+    reduceTimeAlarmAlpha -= deltaTime * 0.75;
+
+    if(reduceTimeAlarmAlpha <= 0){
+      reduceTimeAlarmAlpha = 1;
+    }
+    if(recudeTimeAlarmTime <= 0){
+      reduceTimeAlarmVisible = false;
+    }
+  }
+
+  if(reduceTimeAlarmVisible){
+    context.fillStyle = "rgba(255,0,0,"+reduceTimeAlarmAlpha+")";
+    context.font = "normal 25px Alarm_Clock";
+    context.textAlign = "center";
+
+    context.fillText("00:30 TIDSSTRAFF",  canvas.width * 0.14, canvas.height*0.42)
+    context.fillText("VED FEIL KODE",  canvas.width * 0.14, canvas.height*0.46)
   }
 }
 
@@ -493,7 +523,7 @@ document.addEventListener('keydown', function(event) {
 
   if(CurrentStatus == Game_Status.PLAYING){
     if(event.ctrlKey && event.shiftKey && event.key === 'E'){
-      if(current_state % 2 == 0 && current_state < 13){
+      if(current_state % 2 == 0 && current_state < 15){
         completePulseTask()
       }
     }
@@ -506,7 +536,8 @@ function handleEnter(e) {
   }
 
     if(e.keyCode == 13){
-      completeQuest(inputBox.value.toUpperCase() == passwords[current_password].toUpperCase());
+      // completeQuest(inputBox.value.toUpperCase() == passwords[current_password].toUpperCase());
+      completeQuest(passwords[current_password].includes(inputBox.value.toUpperCase()));
       inputBox.value = ""
     }
     
@@ -523,7 +554,7 @@ function completeQuest(rightPassword){
 
     sfx.correctPassword.play()
 
-    if(current_password == 6){
+    if(current_password == 7){
       current_text_line1 = ""
       current_text_line2 = ""
       
@@ -555,6 +586,9 @@ function completeQuest(rightPassword){
     specialMessageTimer = 3;
     alphaFeil = 1;
     specialMessageBottomBar = "FEIL"
+
+    timer.reduceTime(30);
+
     sfx.incorrectPassword.play()
   }
 }
@@ -703,4 +737,12 @@ function timeAlertMessage(){
   alarmMessageTime = 10;
   alarmMessageAlpha = 1;
   alarmMessageVisible = true;
+}
+
+document.addEventListener("LessTimeAlert", reduceTimeMessage);
+
+function reduceTimeMessage(){
+  recudeTimeAlarmTime = 8;
+  reduceTimeAlarmAlpha = 1;
+  reduceTimeAlarmVisible = true;
 }

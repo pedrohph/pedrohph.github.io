@@ -22,6 +22,12 @@ let lowerBPM = 256;
 let averageBPM = -1;
 let devicesConnected = 0;
 
+let highestBPM = -1;
+let lowestBPM = 256;
+let gameAverageBPM = []
+
+let timerToCheck = 30;
+
 let taks_names = ['B','B','C','C','G','G','A','A','H','H','F','F','D','D','E','E',]
 let current_state = 0;
 let current_password = -1;
@@ -80,13 +86,14 @@ let reduceTimeAlarmVisible = false;
 let firstScreenImage
 let endTimer = 0;
 
+
 setup();
 
 function setup() {
   sfx.natureSound.play()
   sfx.tigerSound.play()
 
-  console.log("Version 0.0.9b")
+  console.log("Version 0.0.10")
   navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -134,9 +141,13 @@ function update(){
   drawBackground()
   drawGoalImages()
   drawTimer()
-  drawPulseValues()
   drawCodeBar()
   drawInputBarText()
+
+  if(CurrentStatus != Game_Status.ENDSCREEN){
+    drawPulseValues()
+  }
+
   console.log("Total devices connected: "+devicesConnected)
 
   checkObjective()  
@@ -162,13 +173,32 @@ function getHigherAndLower(){
       if(bpm < lowerBPM){
         lowerBPM = bpm;
       }
+
+      if(CurrentStatus == Game_Status.PLAYING){
+        if(bpm < lowestBPM){
+          lowestBPM = bpm;
+        }
+        if(bpm > highestBPM){
+          highestBPM = bpm;
+        }
+      }
+     
       averageBPM += bpm;
       devicesConnected++;
     }
   });
 
+  timerToCheck -= deltaTime;
+
   if(devicesConnected > 0){
     averageBPM /= devicesConnected;
+
+    if(CurrentStatus == Game_Status.PLAYING){
+      if(timerToCheck <= 0){
+        gameAverageBPM.push(averageBPM);
+        timerToCheck = 30;
+      }
+    }
   }
 }
 
@@ -355,7 +385,21 @@ function drawEndingScreen(){
 
   context.font = "normal 25px Impact";
  context.fillText("DYREPARKEN/HACKED".toUpperCase(), canvas.width/2, canvas.height - 50)
-    
+
+  context.fillStyle = "rgb(0,255,0)";
+  context.textAlign = "center";
+
+  context.font = "normal 40px Alarm_Clock";
+
+  //Average Pulse
+  context.fillText("SNITT PULS",  canvas.width - 905 * 0.25, canvas.height*0.5 - 450*0.23 )
+  context.fillText(Math.round(getGameAveragePulse()),  canvas.width - 905 * 0.25, canvas.height*0.5 - 450*0.23 + 50)
+
+  //Higher Pulse
+  context.fillText("H: " +highestBPM,  canvas.width - 935 * 0.25, canvas.height*0.62)
+  //Lower Pulse
+  context.fillText("L: " +lowestBPM,  canvas.width - 935 * 0.25, canvas.height*0.62+50)
+
 }
 
 function drawCodeBar(){
@@ -678,6 +722,12 @@ function setGameStatus(newGameStatus){
     case Game_Status.PLAYING:
       timer.startTimer();
       sfx.quickPulse.play()
+
+      highestBPM = -1;
+      lowestBPM = 255;
+      averageBPM = [];
+      timerToCheck = 1;
+
       break;
     case Game_Status.INTROVIDEO:
       
@@ -745,4 +795,14 @@ function reduceTimeMessage(){
   recudeTimeAlarmTime = 8;
   reduceTimeAlarmAlpha = 1;
   reduceTimeAlarmVisible = true;
+}
+
+function getGameAveragePulse(){
+  let sum = 0;
+
+  gameAverageBPM.forEach(bpmValue => {
+    sum += bpmValue;
+  });
+
+  return sum / gameAverageBPM.length;
 }

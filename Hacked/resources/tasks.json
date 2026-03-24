@@ -1,0 +1,100 @@
+{
+    "tasks":[{
+        "center_image": "",
+        "task_type": 0,
+        "Goal": 120,
+        "Tittle_line_1": "FÅ LAGPULS",
+        "Tittle_line_2": "OVER 120"
+    },{
+        "center_image": "",
+        "task_type": 2,
+        "Goal": ["SJIRAFF"],
+        "Tittle_line_1": "OPPGAVE B",
+        "Tittle_line_2": ""
+    },{
+        "center_image": "",
+        "task_type": 1,
+        "Goal": 87,
+        "Tittle_line_1": "FÅ LAGPULS",
+        "Tittle_line_2": "UNDER 87"
+    },{
+        "center_image": "",
+        "task_type": 2,
+        "Goal": ["KARDEMOMMEBY","BADELAND"],
+        "Tittle_line_1": "OPPGAVE C",
+        "Tittle_line_2": ""
+    },{
+        "center_image": "",
+        "task_type": 0,
+        "Goal": 120,
+        "Tittle_line_1": "FÅ LAGPULS",
+        "Tittle_line_2": "OVER 120"
+    },{
+        "center_image": "",
+        "task_type": 2,
+        "Goal": ["BRUMLEMANN"],
+        "Tittle_line_1": "OPPGAVE G",
+        "Tittle_line_2": ""
+    },{
+        "center_image": "",
+        "task_type": 1,
+        "Goal": 87,
+        "Tittle_line_1": "FÅ LAGPULS",
+        "Tittle_line_2": "UNDER 87"
+    },{
+        "center_image": "",
+        "task_type": 2,
+        "Goal": ["11"],
+        "Tittle_line_1": "OPPGAVE A",
+        "Tittle_line_2": ""
+    },{
+        "center_image": "",
+        "task_type": 0,
+        "Goal": 120,
+        "Tittle_line_1": "FÅ LAGPULS",
+        "Tittle_line_2": "OVER 120"
+    },{
+        "center_image": "",
+        "task_type": 2,
+        "Goal": ["KNELER"],
+        "Tittle_line_1": "OPPGAVE H",
+        "Tittle_line_2": ""
+    },{
+        "center_image": "",
+        "task_type": 1,
+        "Goal": 87,
+        "Tittle_line_1": "FÅ LAGPULS",
+        "Tittle_line_2": "UNDER 87"
+    },{
+        "center_image": "",
+        "task_type": 2,
+        "Goal": ["APE"],
+        "Tittle_line_1": "OPPGAVE F",
+        "Tittle_line_2": ""
+    },{
+        "center_image": "",
+        "task_type": 0,
+        "Goal": 120,
+        "Tittle_line_1": "FÅ LAGPULS",
+        "Tittle_line_2": "OVER 120"
+    },{
+        "center_image": "",
+        "task_type": 2,
+        "Goal": ["KRUTT"],
+        "Tittle_line_1": "OPPGAVE D",
+        "Tittle_line_2": ""
+    },{
+        "center_image": "",
+        "task_type": 1,
+        "Goal": 87,
+        "Tittle_line_1": "FÅ LAGPULS",
+        "Tittle_line_2": "UNDER 87"
+    },{
+        "center_image": "",
+        "task_type": 2,
+        "Goal": ["112111"],
+        "Tittle_line_1": "OPPGAVE E",
+        "Tittle_line_2": ""
+    }
+    ]
+}

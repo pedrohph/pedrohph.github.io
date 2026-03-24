@@ -14,6 +14,7 @@ const Game_Status = Object.freeze({
 const introVideo = document.getElementById('Intro-Video');
 const endVideo = document.getElementById('End-Video');
 
+let removed_device_list = []
 let device_list = []
 let bpm_values = []
 
@@ -93,8 +94,8 @@ function setup() {
   sfx.natureSound.play()
   sfx.tigerSound.play()
 
-  console.log("Version 0.0.10")
-  navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
+  console.log("Version 0.0.11")
+  // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
 
@@ -114,6 +115,10 @@ function update(){
   if(CurrentStatus == Game_Status.BEFORESTART){
     drawFirstImage() 
     return;
+  }
+
+  if(removed_device_list.length > 0){
+    reconnectDevices();
   }
 
   if(CurrentStatus == Game_Status.TIMEBEFOREEND){
@@ -659,35 +664,79 @@ function completePulseTask(){
 
 function GetBluetoothPermission(){
   //Bluetooth
-let options = {
-  filters: [
-    { services: ["heart_rate"] },
-    { services: [0x1802, 0x1803] },
-    { services: ["c48e6067-5295-48d3-8d5c-0395f61792b1"] },
-    { name: "ExampleName" },
-    { namePrefix: "Prefix" },
-  ],
-  optionalServices: ["battery_service"],
-};
+  let options = {
+    filters: [
+      { services: ["heart_rate"] }
+      // { services: [0x1802, 0x1803] },
+      // { services: ["c48e6067-5295-48d3-8d5c-0395f61792b1"] }
+    ]
+  };
 
-navigator.bluetooth
-  .requestDevice(options)
-  .then((device) => {
-    console.log(`Name: ${device.name}`);
+  navigator.bluetooth
+    .requestDevice(options)
+    .then((device) => {
+      console.log(`Name: ${device.name}`);
+      device.gatt.connect().then((device_gatt) =>{
+        device_gatt.getPrimaryService("heart_rate").then((ps)=>{
+          ps.getCharacteristic("heart_rate_measurement").then((heart_rate_measurement)=>{
+            console.log(heart_rate_measurement);
+            if(!device_list.includes(device)){
+              device_list.push(device)
+              bpm_values.push(0);
+            }
+            if (heart_rate_measurement.properties.notify) {
+              console.log("Notify")
+              heart_rate_measurement.addEventListener(
+                "characteristicvaluechanged",
+                async (event) => {
+                  let i = device_list.indexOf(device);
+                  if(i < device_list.length){
+                    bpm_values[i] = event.target.value.getUint8(1)
+                  }
+                },
+              );
+              heart_rate_measurement.startNotifications()
+            }
+          })
+        })
+
+        device.addEventListener('gattserverdisconnected', (event) => {
+          let removedIndex = device_list.indexOf(event.target);
+          console.log("removing device", removedIndex)
+            if(removedIndex == -1){
+              return;
+            }
+          removed_device_list.push(device_list[removedIndex]);
+          device_list.splice(removedIndex, 1)
+          bpm_values.splice(removedIndex, 1)
+        });
+
+      });
+    })
+    .catch((error) => console.error(`Something went wrong. ${error}`));
+}
+
+function reconnectDevices(){
+  console.log("Trying to reconnect")
+  let device;
+  for(let i = 0; i<removed_device_list.length; i++){
+    device = removed_device_list[i]
+    
     device.gatt.connect().then((device_gatt) =>{
       device_gatt.getPrimaryService("heart_rate").then((ps)=>{
         ps.getCharacteristic("heart_rate_measurement").then((heart_rate_measurement)=>{
-          console.log(heart_rate_measurement);
-          if(!device_list.includes(device.id)){
-            device_list.push(device.id)
+          console.log("Connected!!")
+          if(!device_list.includes(device)){
+            device_list.push(device)
             bpm_values.push(0);
+
+            removed_device_list.splice(i,1);
           }
           if (heart_rate_measurement.properties.notify) {
-            console.log("Notify")
             heart_rate_measurement.addEventListener(
               "characteristicvaluechanged",
               async (event) => {
-                let i = device_list.indexOf(device.id);
+                let i = device_list.indexOf(device);
                 if(i < device_list.length){
                   bpm_values[i] = event.target.value.getUint8(1)
                 }
@@ -698,15 +747,8 @@ navigator.bluetooth
         })
       })
     });
+  };
 
-    //Avaliar melhor depois
-    device.addEventListener('gattserverdisconnected', (event) => {
-    const disconnectedDevice = event.target;
-    console.log(`Device ${disconnectedDevice.name} is disconnected.`);
-
-    });
-  })
-  .catch((error) => console.error(`Something went wrong. ${error}`));
 }
 
 function calculateDeltaTime(){

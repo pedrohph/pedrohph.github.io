@@ -1,5 +1,6 @@
 import Timer from "./classes/timer.js";
 import sfx from "./classes/soundmanager.js";
+import TaskReader from "./classes/taskreader.js";
 
 const Game_Status = Object.freeze({
   ONBOARDING: '0',
@@ -29,7 +30,6 @@ let gameAverageBPM = []
 
 let timerToCheck = 30;
 
-let taks_names = ['B','B','C','C','G','G','A','A','H','H','F','F','D','D','E','E',]
 let current_state = 0;
 let current_password = -1;
 let current_text_line1 = "FÅ LAGPULS"
@@ -42,8 +42,10 @@ let totalUsedTime = "00:00"
 
 let typeBarAlpha = 1;
 
-let passwords = [["SJIRAFF"], ["KARDEMOMMEBY","BADELAND"], ["BRUMLEMANN"], ["11"], ["KNELER"] ,["APE"], ["KRUTT"], ["112111"]]
 let fullCode = ""
+
+let taskReader = new TaskReader();
+let tasks = [];
 
 let timer = new Timer();
 let lastTime = new Date();
@@ -94,7 +96,7 @@ function setup() {
   sfx.natureSound.play()
   sfx.tigerSound.play()
 
-  console.log("Version 0.0.11")
+  console.log("Version 0.0.12")
   // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -105,6 +107,7 @@ function setup() {
 
   loadBoxes()
   update();
+  tasks = taskReader.getTasks();
 }
 
 
@@ -128,7 +131,7 @@ function update(){
     }
   }
 
-  if(current_state % 2 == 1 && specialMessageTimer <= 0){
+  if(tasks[current_state].Task_type == 2 && specialMessageTimer <= 0){
     inputBox.focus();
   }else{ 
     inputBox.blur();
@@ -208,9 +211,17 @@ function getHigherAndLower(){
 }
 
 function checkObjective(){
-  if(current_state == 16){
+  if(tasks == [] || tasks == undefined){
+    tasks.taskReader.getTasks();
+  }
+
+  if(current_state >= tasks.length){
     return;
   }
+
+  // if(current_state == 16){
+  //   return;
+  // }
   
   if(playLionSound && lionTimer <= 0){
       //90 seconds
@@ -219,15 +230,24 @@ function checkObjective(){
       sfx.lastTaskSound.play()
   }
 
-  if(current_state % 4 == 0){
-    if(averageBPM >= 120 && averageBPM > 0){
+  if(tasks[current_state].Task_type == 0){
+     if(averageBPM >= tasks[current_state].Goal && averageBPM > 0){
       completePulseTask()
     }
-  }else if(current_state % 4 == 2){
-    if(averageBPM <= 87 && averageBPM > 0){
+  }else if(tasks[current_state].Task_type == 1){
+    if(averageBPM <= tasks[current_state].Goal && averageBPM > 0){
       completePulseTask();
     }
   }
+  // if(current_state % 4 == 0){
+  //   if(averageBPM >= 120 && averageBPM > 0){
+  //     completePulseTask()
+  //   }
+  // }else if(current_state % 4 == 2){
+  //   if(averageBPM <= 87 && averageBPM > 0){
+  //     completePulseTask();
+  //   }
+  // }
   
 }
 
@@ -322,7 +342,7 @@ function drawGoalImages(){
     //Draw Status Screen
   }else if(CurrentStatus == Game_Status.TIMEBEFOREEND){
     context.drawImage(centerImageEnvelope,  canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
-  }else if(current_state % 2 == 0){
+  }else if(tasks[current_state].Task_type < 2){
     context.drawImage(centerImagePulse, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
     drawTextOnCenter()
   }else{
@@ -442,6 +462,7 @@ function drawInputBarText(){
         specialMessageTimer = 0;
 
         specialMessageBottomBar = "";
+        sfx.incorrectPassword.stop()
       }
     }
     
@@ -539,6 +560,9 @@ function drawUsedTime(){
 }
 
 function drawTextOnCenter(){
+  current_text_line1 = tasks[current_state].Tittle_line_1;
+  current_text_line2 = tasks[current_state].Tittle_line_2;
+
   context.strokeStyle = "black";
   context.lineWidth = 3;
   context.fillStyle = "white";
@@ -568,11 +592,12 @@ document.addEventListener('keydown', function(event) {
     // setGameStatus(Game_Status.PLAYING)
   }else  if(event.code == 'Space' && CurrentStatus == Game_Status.BEFORESTART){
     setGameStatus(Game_Status.ONBOARDING)
+    tasks = taskReader.getTasks();
   }
 
   if(CurrentStatus == Game_Status.PLAYING){
     if(event.ctrlKey && event.shiftKey && event.key === 'E'){
-      if(current_state % 2 == 0 && current_state < 15){
+      if(tasks[current_state].Task_type < 2){
         completePulseTask()
       }
     }
@@ -580,15 +605,14 @@ document.addEventListener('keydown', function(event) {
 });
 
 function handleEnter(e) {
-  if(current_state % 2 == 0){
+  if(tasks[current_state].Task_type != 2){
     return;
   }
 
-    if(e.keyCode == 13){
-      // completeQuest(inputBox.value.toUpperCase() == passwords[current_password].toUpperCase());
-      completeQuest(passwords[current_password].includes(inputBox.value.toUpperCase()));
-      inputBox.value = ""
-    }
+  if(e.keyCode == 13){
+    completeQuest(tasks[current_state].Goal.includes(inputBox.value.toUpperCase()));
+    inputBox.value = ""
+  }
     
 }
 
@@ -612,25 +636,20 @@ function completeQuest(rightPassword){
       return;
 
     }
-    
-    if(current_state % 4 == 1){
-      current_text_line1 = "FÅ LAGPULS"
-      current_text_line2 = "UNDER 87"
 
-      bottom_text_line1 = "SENK STRESSNIVÅET"
-      bottom_text_line2 = ""
-      sfx.slowPulse.play()
+  current_state ++;
 
-    }else{
-      current_text_line1 = "FÅ LAGPULS"
-      current_text_line2 = "OVER 120"
-
+  if(tasks[current_state].Task_type == 0){
       bottom_text_line1 = "STRESSNIVÅET ØKER"
       bottom_text_line2 = "UNDER TIDSPRESS"
-      sfx.quickPulse.play()
-    }
+      sfx.quickPulse.play()     
+
+  }else if(tasks[current_state].Task_type == 1){
+    bottom_text_line1 = "SENK STRESSNIVÅET"
+    bottom_text_line2 = ""
+    sfx.slowPulse.play()
+  }
     
-    current_state ++;
   }else{
     specialMessageTimer = 3;
     alphaFeil = 1;
@@ -647,13 +666,13 @@ function completePulseTask(){
     sfx.slowPulse.stop();
       current_state ++;
       current_password ++;
-      current_text_line1 = "OPPGAVE "+taks_names[current_state];
-      current_text_line2 = ""
+      //current_text_line1 = "OPPGAVE "+taks_names[current_state];
+      //current_text_line2 = ""
 
       bottom_text_line1 = ""
       bottom_text_line2 = ""
       
-      if(current_password == passwords.length -1){
+      if(current_password == tasks.length -1){
         lionTimer = 90;
         playLionSound = true;
       }
@@ -667,8 +686,6 @@ function GetBluetoothPermission(){
   let options = {
     filters: [
       { services: ["heart_rate"] }
-      // { services: [0x1802, 0x1803] },
-      // { services: ["c48e6067-5295-48d3-8d5c-0395f61792b1"] }
     ]
   };
 
@@ -676,29 +693,7 @@ function GetBluetoothPermission(){
     .requestDevice(options)
     .then((device) => {
       console.log(`Name: ${device.name}`);
-      device.gatt.connect().then((device_gatt) =>{
-        device_gatt.getPrimaryService("heart_rate").then((ps)=>{
-          ps.getCharacteristic("heart_rate_measurement").then((heart_rate_measurement)=>{
-            console.log(heart_rate_measurement);
-            if(!device_list.includes(device)){
-              device_list.push(device)
-              bpm_values.push(0);
-            }
-            if (heart_rate_measurement.properties.notify) {
-              console.log("Notify")
-              heart_rate_measurement.addEventListener(
-                "characteristicvaluechanged",
-                async (event) => {
-                  let i = device_list.indexOf(device);
-                  if(i < device_list.length){
-                    bpm_values[i] = event.target.value.getUint8(1)
-                  }
-                },
-              );
-              heart_rate_measurement.startNotifications()
-            }
-          })
-        })
+        connectToDevice(device, -1);
 
         device.addEventListener('gattserverdisconnected', (event) => {
           let removedIndex = device_list.indexOf(event.target);
@@ -710,8 +705,6 @@ function GetBluetoothPermission(){
           device_list.splice(removedIndex, 1)
           bpm_values.splice(removedIndex, 1)
         });
-
-      });
     })
     .catch((error) => console.error(`Something went wrong. ${error}`));
 }
@@ -721,18 +714,26 @@ function reconnectDevices(){
   let device;
   for(let i = 0; i<removed_device_list.length; i++){
     device = removed_device_list[i]
-    
-    device.gatt.connect().then((device_gatt) =>{
-      device_gatt.getPrimaryService("heart_rate").then((ps)=>{
-        ps.getCharacteristic("heart_rate_measurement").then((heart_rate_measurement)=>{
-          console.log("Connected!!")
-          if(!device_list.includes(device)){
-            device_list.push(device)
-            bpm_values.push(0);
+    connectToDevice(device, i)
+  };
 
-            removed_device_list.splice(i,1);
+}
+
+function connectToDevice(device, id){
+  device.gatt.connect().then((device_gatt) =>{
+    device_gatt.getPrimaryService("heart_rate").then((ps)=>{
+      ps.getCharacteristic("heart_rate_measurement").then((heart_rate_measurement)=>{
+        if(!device_list.includes(device)){
+          console.log(heart_rate_measurement);
+          device_list.push(device)
+          bpm_values.push(0);
+
+          if(id != -1){
+            removed_device_list.splice(id,1);
           }
+
           if (heart_rate_measurement.properties.notify) {
+            console.log("Notify")
             heart_rate_measurement.addEventListener(
               "characteristicvaluechanged",
               async (event) => {
@@ -744,11 +745,11 @@ function reconnectDevices(){
             );
             heart_rate_measurement.startNotifications()
           }
-        })
-      })
-    });
-  };
+        }
 
+      })
+    })
+  })
 }
 
 function calculateDeltaTime(){

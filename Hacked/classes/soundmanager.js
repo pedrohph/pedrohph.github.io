@@ -12,13 +12,14 @@ const sfx = {
     }),
     lastTaskSound: new Howl({
         src:['assets/sfx/last_task.mp3'],
-        volume: 1.3
+        volume: 1.75
     }),
     correctPassword: new Howl({
         src:['assets/sfx/password_correct.mp3']
     }),
     incorrectPassword: new Howl({
-        src:['assets/sfx/password_incorrect.mp3']
+        src:['assets/sfx/password_incorrect.mp3'],
+        loop: true
     }),
     reachPulseLevel: new Howl({
         src:['assets/sfx/reach_pulse_level.mp3']

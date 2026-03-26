@@ -30,8 +30,7 @@ let gameAverageBPM = []
 
 let timerToCheck = 30;
 
-let current_state = 0;
-let current_password = -1;
+let current_task = 0;
 let current_text_line1 = "FÅ LAGPULS"
 let current_text_line2 = "OVER 120"
 
@@ -96,7 +95,7 @@ function setup() {
   sfx.natureSound.play()
   sfx.tigerSound.play()
 
-  console.log("Version 0.0.12")
+  console.log("Version 0.0.13")
   // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -131,10 +130,12 @@ function update(){
     }
   }
 
-  if(tasks[current_state].Task_type == 2 && specialMessageTimer <= 0){
-    inputBox.focus();
-  }else{ 
-    inputBox.blur();
+  if(CurrentStatus == Game_Status.PLAYING){
+    if(tasks[current_task].Task_type == 2 && specialMessageTimer <= 0){
+      inputBox.focus();
+    }else{ 
+      inputBox.blur();
+    }
   }
 
   timer.update(deltaTime);
@@ -215,13 +216,10 @@ function checkObjective(){
     tasks.taskReader.getTasks();
   }
 
-  if(current_state >= tasks.length){
+  if(current_task >= tasks.length){
     return;
   }
 
-  // if(current_state == 16){
-  //   return;
-  // }
   
   if(playLionSound && lionTimer <= 0){
       //90 seconds
@@ -230,24 +228,15 @@ function checkObjective(){
       sfx.lastTaskSound.play()
   }
 
-  if(tasks[current_state].Task_type == 0){
-     if(averageBPM >= tasks[current_state].Goal && averageBPM > 0){
+  if(tasks[current_task].Task_type == 0){
+     if(averageBPM >= tasks[current_task].Goal && averageBPM > 0){
       completePulseTask()
     }
-  }else if(tasks[current_state].Task_type == 1){
-    if(averageBPM <= tasks[current_state].Goal && averageBPM > 0){
+  }else if(tasks[current_task].Task_type == 1){
+    if(averageBPM <= tasks[current_task].Goal && averageBPM > 0){
       completePulseTask();
     }
   }
-  // if(current_state % 4 == 0){
-  //   if(averageBPM >= 120 && averageBPM > 0){
-  //     completePulseTask()
-  //   }
-  // }else if(current_state % 4 == 2){
-  //   if(averageBPM <= 87 && averageBPM > 0){
-  //     completePulseTask();
-  //   }
-  // }
   
 }
 
@@ -340,9 +329,9 @@ function drawGoalImages(){
     drawUsedTime();
     drawEndingScreen();
     //Draw Status Screen
-  }else if(CurrentStatus == Game_Status.TIMEBEFOREEND){
+  }else if(CurrentStatus == Game_Status.TIMEBEFOREEND || CurrentStatus == Game_Status.ENDVIDEO){
     context.drawImage(centerImageEnvelope,  canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
-  }else if(tasks[current_state].Task_type < 2){
+  }else if(tasks[current_task].Task_type < 2){
     context.drawImage(centerImagePulse, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
     drawTextOnCenter()
   }else{
@@ -560,8 +549,8 @@ function drawUsedTime(){
 }
 
 function drawTextOnCenter(){
-  current_text_line1 = tasks[current_state].Tittle_line_1;
-  current_text_line2 = tasks[current_state].Tittle_line_2;
+  current_text_line1 = tasks[current_task].Tittle_line_1;
+  current_text_line2 = tasks[current_task].Tittle_line_2;
 
   context.strokeStyle = "black";
   context.lineWidth = 3;
@@ -597,7 +586,7 @@ document.addEventListener('keydown', function(event) {
 
   if(CurrentStatus == Game_Status.PLAYING){
     if(event.ctrlKey && event.shiftKey && event.key === 'E'){
-      if(tasks[current_state].Task_type < 2){
+      if(tasks[current_task].Task_type < 2){
         completePulseTask()
       }
     }
@@ -605,12 +594,12 @@ document.addEventListener('keydown', function(event) {
 });
 
 function handleEnter(e) {
-  if(tasks[current_state].Task_type != 2){
+  if(tasks[current_task].Task_type != 2){
     return;
   }
 
   if(e.keyCode == 13){
-    completeQuest(tasks[current_state].Goal.includes(inputBox.value.toUpperCase()));
+    completeQuest(tasks[current_task].Goal.includes(inputBox.value.toUpperCase()));
     inputBox.value = ""
   }
     
@@ -627,7 +616,9 @@ function completeQuest(rightPassword){
 
     sfx.correctPassword.play()
 
-    if(current_password == 7){
+    current_task ++;
+
+    if(current_task >= tasks.length){
       current_text_line1 = ""
       current_text_line2 = ""
       
@@ -637,14 +628,12 @@ function completeQuest(rightPassword){
 
     }
 
-  current_state ++;
-
-  if(tasks[current_state].Task_type == 0){
+  if(tasks[current_task].Task_type == 0){
       bottom_text_line1 = "STRESSNIVÅET ØKER"
       bottom_text_line2 = "UNDER TIDSPRESS"
       sfx.quickPulse.play()     
 
-  }else if(tasks[current_state].Task_type == 1){
+  }else if(tasks[current_task].Task_type == 1){
     bottom_text_line1 = "SENK STRESSNIVÅET"
     bottom_text_line2 = ""
     sfx.slowPulse.play()
@@ -664,15 +653,12 @@ function completeQuest(rightPassword){
 function completePulseTask(){
     sfx.quickPulse.stop();
     sfx.slowPulse.stop();
-      current_state ++;
-      current_password ++;
-      //current_text_line1 = "OPPGAVE "+taks_names[current_state];
-      //current_text_line2 = ""
+      current_task ++;
 
       bottom_text_line1 = ""
       bottom_text_line2 = ""
       
-      if(current_password == tasks.length -1){
+      if(current_task == tasks.length -1){
         lionTimer = 90;
         playLionSound = true;
       }

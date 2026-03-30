@@ -573,10 +573,12 @@ canvas.addEventListener('click', (event) => {
 })
 
 document.addEventListener('keydown', function(event) {
-  //Tornar um padrão mais prático
+  if(event.shiftKey && event.key == '@' && CurrentStatus == Game_Status.ONBOARDING){
+    taskReader.setTaskFiles()
+  }
   if(event.code == 'Space' && CurrentStatus == Game_Status.ONBOARDING){
-    setGameStatus(Game_Status.INTROVIDEO)
-    // setGameStatus(Game_Status.PLAYING)
+    // setGameStatus(Game_Status.INTROVIDEO)
+    setGameStatus(Game_Status.PLAYING)
   }else  if(event.code == 'Space' && CurrentStatus == Game_Status.BEFORESTART){
     setGameStatus(Game_Status.ONBOARDING)
     tasks = taskReader.getTasks();

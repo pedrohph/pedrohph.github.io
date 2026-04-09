@@ -1,9 +1,8 @@
 {
     "tasks":[{
         "Task_type": 0,
-        "Goal": 120,
         "Tittle_line_1": "FÅ LAGPULS",
-        "Tittle_line_2": "OVER 120"
+        "Tittle_line_2": "OVER "
     },{
         "Task_type": 2,
         "Goal": ["SJIRAFF"],
@@ -11,9 +10,8 @@
         "Tittle_line_2": ""
     },{
         "Task_type": 1,
-        "Goal": 87,
         "Tittle_line_1": "FÅ LAGPULS",
-        "Tittle_line_2": "UNDER 87"
+        "Tittle_line_2": "UNDER "
     },{
         "Task_type": 2,
         "Goal": ["KARDEMOMMEBY","BADELAND"],
@@ -21,9 +19,8 @@
         "Tittle_line_2": ""
     },{
         "Task_type": 0,
-        "Goal": 120,
         "Tittle_line_1": "FÅ LAGPULS",
-        "Tittle_line_2": "OVER 120"
+        "Tittle_line_2": "OVER "
     },{
         "Task_type": 2,
         "Goal": ["BRUMLEMANN"],
@@ -31,9 +28,8 @@
         "Tittle_line_2": ""
     },{
         "Task_type": 1,
-        "Goal": 87,
         "Tittle_line_1": "FÅ LAGPULS",
-        "Tittle_line_2": "UNDER 87"
+        "Tittle_line_2": "UNDER "
     },{
         "Task_type": 2,
         "Goal": ["11"],
@@ -41,9 +37,8 @@
         "Tittle_line_2": ""
     },{
         "Task_type": 0,
-        "Goal": 120,
         "Tittle_line_1": "FÅ LAGPULS",
-        "Tittle_line_2": "OVER 120"
+        "Tittle_line_2": "OVER "
     },{
         "Task_type": 2,
         "Goal": ["KNELER"],
@@ -51,9 +46,8 @@
         "Tittle_line_2": ""
     },{
         "Task_type": 1,
-        "Goal": 87,
         "Tittle_line_1": "FÅ LAGPULS",
-        "Tittle_line_2": "UNDER 87"
+        "Tittle_line_2": "UNDER "
     },{
         "Task_type": 2,
         "Goal": ["APE"],
@@ -61,9 +55,8 @@
         "Tittle_line_2": ""
     },{
         "Task_type": 0,
-        "Goal": 120,
         "Tittle_line_1": "FÅ LAGPULS",
-        "Tittle_line_2": "OVER 120"
+        "Tittle_line_2": "OVER "
     },{
         "Task_type": 2,
         "Goal": ["KRUTT"],
@@ -71,9 +64,8 @@
         "Tittle_line_2": ""
     },{
         "Task_type": 1,
-        "Goal": 87,
         "Tittle_line_1": "FÅ LAGPULS",
-        "Tittle_line_2": "UNDER 87"
+        "Tittle_line_2": "UNDER "
     },{
         "Task_type": 2,
         "Goal": ["112111"],

@@ -30,6 +30,9 @@ let gameAverageBPM = []
 
 let timerToCheck = 30;
 
+let underTasksValue = 87;
+let overTasksValue = 120;
+
 let current_task = 0;
 let current_text_line1 = "FÅ LAGPULS"
 let current_text_line2 = "OVER 120"
@@ -89,6 +92,26 @@ let firstScreenImage
 let endTimer = 0;
 
 
+let adminToolIsOpen = false;
+const adminTool = document.getElementById('admin-tool-container');
+const confirmButton = document.getElementById('button-confirm-admin-tool');
+const cancelButton = document.getElementById('button-cancel-admin-tool');
+const underPulseInput = document.getElementById('under-pulse-value');
+const overPulseInput = document.getElementById('over-pulse-value');
+const newTimeInput = document.getElementById('new-game-time');
+
+const passwordInputs = document.getElementsByClassName('password-input')
+// const passwordInputA = document.getElementById('a'); 
+// const passwordInputB = document.getElementById('b'); 
+// const passwordInputC = document.getElementById('c'); 
+// const passwordInputD = document.getElementById('d'); 
+// const passwordInputE = document.getElementById('e'); 
+// const passwordInputF = document.getElementById('f'); 
+// const passwordInputG = document.getElementById('g'); 
+// const passwordInputH = document.getElementById('h'); 
+
+
+
 setup();
 
 function setup() {
@@ -107,6 +130,7 @@ function setup() {
   loadBoxes()
   update();
   tasks = taskReader.getTasks();
+
 }
 
 
@@ -213,7 +237,7 @@ function getHigherAndLower(){
 
 function checkObjective(){
   if(tasks == [] || tasks == undefined){
-    tasks.taskReader.getTasks();
+    tasks = taskReader.getTasks();
   }
 
   if(current_task >= tasks.length){
@@ -229,11 +253,11 @@ function checkObjective(){
   }
 
   if(tasks[current_task].Task_type == 0){
-     if(averageBPM >= tasks[current_task].Goal && averageBPM > 0){
+     if(averageBPM >= overTasksValue && averageBPM > 0){
       completePulseTask()
     }
   }else if(tasks[current_task].Task_type == 1){
-    if(averageBPM <= tasks[current_task].Goal && averageBPM > 0){
+    if(averageBPM <= underTasksValue && averageBPM > 0){
       completePulseTask();
     }
   }
@@ -552,6 +576,13 @@ function drawTextOnCenter(){
   current_text_line1 = tasks[current_task].Tittle_line_1;
   current_text_line2 = tasks[current_task].Tittle_line_2;
 
+  if(tasks[current_task].Task_type == 0){
+    current_text_line2 += overTasksValue
+  }else if(tasks[current_task].Task_type == 1){
+    current_text_line2 += underTasksValue
+
+  }
+
   context.strokeStyle = "black";
   context.lineWidth = 3;
   context.fillStyle = "white";
@@ -580,8 +611,14 @@ document.addEventListener('keydown', function(event) {
     setGameStatus(Game_Status.INTROVIDEO)
     // setGameStatus(Game_Status.PLAYING)
   }else  if(event.code == 'Space' && CurrentStatus == Game_Status.BEFORESTART){
+    if(adminToolIsOpen){
+      return;  
+    }
     setGameStatus(Game_Status.ONBOARDING)
-    tasks = taskReader.getTasks();
+    
+    if(tasks.length <= 0){
+      tasks = taskReader.getTasks();
+    }
   }
 
   if(CurrentStatus == Game_Status.PLAYING){
@@ -589,6 +626,12 @@ document.addEventListener('keydown', function(event) {
       if(tasks[current_task].Task_type < 2){
         completePulseTask()
       }
+    }
+  }
+  if(CurrentStatus == Game_Status.BEFORESTART){
+    if(event.ctrlKey && event.shiftKey && event.key === 'E'){
+      openAdminTool();
+      // adminTool.classList.add("hidden")
     }
   }
 });
@@ -834,4 +877,64 @@ function getGameAveragePulse(){
   });
 
   return sum / gameAverageBPM.length;
+}
+
+
+function openAdminTool(){
+  if(tasks.length == 0){
+    tasks = taskReader.getTasks();
+  }
+ 
+  adminTool.classList.remove('hidden')
+  adminToolIsOpen = true;
+
+  underPulseInput.value = underTasksValue;
+  overPulseInput.value = overTasksValue;
+
+  console.log(passwordInputs[0].id)
+  for(let i = 0; i<passwordInputs.length; i++){
+    tasks.forEach(t => {
+    if("OPPGAVE " +passwordInputs[i].id == t.Tittle_line_1){
+      passwordInputs[i].value = t.Goal;
+    }
+  })
+  }
+  
+}
+
+confirmButton.addEventListener('click', () =>{
+  underTasksValue = underPulseInput.value
+  overTasksValue = overPulseInput.value
+  timer.setTotalTimer(newTimeInput.value * 60);
+
+
+   for(let i = 0; i<passwordInputs.length; i++){
+    getTaskPasswords(passwordInputs[i].id, passwordInputs[i].value)
+   }
+  
+
+  console.log("Confirmou!")
+  adminTool.classList.add('hidden')
+  adminToolIsOpen = false;
+
+})
+
+cancelButton.addEventListener('click', () =>{
+  adminTool.classList.add('hidden')
+  adminToolIsOpen = false;
+
+})
+
+function getTaskPasswords(taskCode, newPassword){
+
+  let passwords = newPassword.split(',')
+  tasks.forEach(t => {
+    if(t.Tittle_line_1 == "OPPGAVE "+ taskCode.toUpperCase()){
+      t.Goal = []
+      passwords.forEach(np => {
+        t.Goal.push(np.toUpperCase().trim())
+      });
+    }
+  });
+  
 }

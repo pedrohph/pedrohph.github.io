@@ -51,6 +51,11 @@ class Timer{
         return this.time_left;
     }
 
+    setTotalTimer(newTime){
+        this.time_left = newTime;
+        this.starter_time = this.time_left
+    }
+
     startTimer(){
         this.start_time = true;
     }

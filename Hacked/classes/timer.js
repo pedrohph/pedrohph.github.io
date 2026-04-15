@@ -11,10 +11,16 @@ class Timer{
     secondAlert = false;
     secondAlertTime = 300;
 
+    tenMinutesAlert = 0;
+
+    halfHourAlertTime = 1800;
+
     constructor(){
         this.start_time = false;
         
         this.starter_time = this.time_left;
+        this.tenMinutesAlert = this.starter_time - 600;
+
     }
 
     update(deltaTime){
@@ -34,13 +40,26 @@ class Timer{
         if (this.time_left <= this.secondAlertTime && !this.secondAlert){
             this.secondAlert = true;
             document.dispatchEvent(this.alertEvent);
+        }
 
+        if(this.time_left <= this.halfHourAlertTime){
+            this.halfHourAlertTime = -10;
+            document.dispatchEvent(this.halfHourEvent)
         }
 
         if(this.time_left <= 0){
             this.time_left = 0;
-
            // sfx.timerOver.play();
+        }
+
+        console.log(this.tenMinutesAlert)
+        if(this.time_left <= this.tenMinutesAlert){
+            sfx.clockSound.play()
+            this.tenMinutesAlert -= 600;
+            if(this.firstAlertTime >= this.tenMinutesAlert){
+                sfx.clockSound.loop(true)
+                this.tenMinutesAlert = -2;
+            }
         }
     }
     getTimeOnTimeFormat(){
@@ -54,6 +73,7 @@ class Timer{
     setTotalTimer(newTime){
         this.time_left = newTime;
         this.starter_time = this.time_left
+        this.tenMinutesAlert = this.starter_time - 600;
     }
 
     startTimer(){
@@ -86,6 +106,12 @@ class Timer{
         cancelable: true,
         composed: true
     })
+
+    halfHourEvent = new Event('HalfHourAlert', {
+        bubbles: true,
+        cancelable: true,
+        composed: true
+    });
 }
 
 export default Timer;

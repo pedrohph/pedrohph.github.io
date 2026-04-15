@@ -1,10 +1,9 @@
 const sfx = {
-    // music: new Howl({
-    //     src: ['assets/Music/gone_with_the_wind_-_graciano_choc.wav'],
-    //     volume: 0.2,
-    //     loop: true,
-    //     autoplay: true,
-    // }),
+    music: new Howl({
+        src: ['assets/sfx/game_music.mp3'],
+        volume: 0.3,
+        loop: true
+    }),
     natureSound: new Howl({
         src:['assets/sfx/placidplace-nature-soundstropicaljunglebirds-108380.mp3'],
         volume: 0.5,
@@ -46,6 +45,9 @@ const sfx = {
     alarmSound: new Howl({
         src:['assets/sfx/alarm.ogg'],
         loop: true
+    }),
+    clockSound: new Howl({
+        src:['assets/sfx/clock.mp3']
     })
     
 }

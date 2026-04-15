@@ -116,7 +116,7 @@
     }
   }
 
-  #Intro-Video{
+  video{
     position: absolute;
     width: 100dvw;
     height: 100dvh;
@@ -124,13 +124,13 @@
     left: 0;
   }
 
-   #End-Video{
+   /* #End-Video{
     position: absolute;
     width: 100dvw;
     height: 100dvh;
     top: 0;
     left: 0;
-  }
+  } */
 
   .video-focus{
     z-index: 1;

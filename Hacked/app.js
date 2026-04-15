@@ -14,6 +14,7 @@ const Game_Status = Object.freeze({
 
 const introVideo = document.getElementById('Intro-Video');
 const endVideo = document.getElementById('End-Video');
+const countdownVideo = document.getElementById('Countdown-Video');
 
 let removed_device_list = []
 let device_list = []
@@ -30,7 +31,7 @@ let gameAverageBPM = []
 
 let timerToCheck = 30;
 
-let underTasksValue = 87;
+let underTasksValue = 82;
 let overTasksValue = 120;
 
 let current_task = 0;
@@ -84,6 +85,11 @@ let alarmMessageTime = 0;
 let alarmMessageAlpha = 1;
 let alarmMessageVisible = true;
 
+let halfHourMessageTime = 0;
+let halfHourMessageAlpha = 1;
+let halfHourMessageVisible = true;
+
+
 let recudeTimeAlarmTime = 0;
 let reduceTimeAlarmAlpha = 1;
 let reduceTimeAlarmVisible = false;
@@ -101,16 +107,6 @@ const overPulseInput = document.getElementById('over-pulse-value');
 const newTimeInput = document.getElementById('new-game-time');
 
 const passwordInputs = document.getElementsByClassName('password-input')
-// const passwordInputA = document.getElementById('a'); 
-// const passwordInputB = document.getElementById('b'); 
-// const passwordInputC = document.getElementById('c'); 
-// const passwordInputD = document.getElementById('d'); 
-// const passwordInputE = document.getElementById('e'); 
-// const passwordInputF = document.getElementById('f'); 
-// const passwordInputG = document.getElementById('g'); 
-// const passwordInputH = document.getElementById('h'); 
-
-
 
 setup();
 
@@ -118,7 +114,7 @@ function setup() {
   sfx.natureSound.play()
   sfx.tigerSound.play()
 
-  console.log("Version 0.0.13")
+  console.log("Version 0.0.15")
   // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -539,6 +535,30 @@ function drawTimer(){
     context.fillText("HASTER!",  canvas.width * 0.14, canvas.height*0.65)
   }
 
+  if(halfHourMessageVisible){
+    //Teco teco
+    halfHourMessageTime -= deltaTime;
+    halfHourMessageAlpha -= deltaTime * 1.25;
+
+    if(halfHourMessageAlpha <= 0){
+      halfHourMessageAlpha = 1;
+    }
+
+    if(halfHourMessageTime <= 0){
+      halfHourMessageVisible = false;
+      sfx.alarmSound.stop()
+
+    }
+    
+    context.fillStyle = "rgba(255,0,0,"+halfHourMessageAlpha+")";
+    context.font = "normal 40px Alarm_Clock";
+    context.textAlign = "center";
+
+    context.fillText("KUN EN 1/2",  canvas.width * 0.14, canvas.height*0.65)
+    context.fillText("TIME IGJEN!",  canvas.width * 0.14, canvas.height*0.7)
+ 
+  }
+
    if(reduceTimeAlarmVisible){
     recudeTimeAlarmTime -= deltaTime;
     reduceTimeAlarmAlpha -= deltaTime * 0.75;
@@ -793,6 +813,7 @@ function setGameStatus(newGameStatus){
   switch(CurrentStatus){
     case Game_Status.PLAYING:
       timer.startTimer();
+      sfx.music.play()
       sfx.quickPulse.play()
 
       highestBPM = -1;
@@ -806,8 +827,11 @@ function setGameStatus(newGameStatus){
       sfx.natureSound.stop()
       sfx.tigerSound.stop()
       startIntroVideo()
+      //setGameStatus(Game_Status.PLAYING)
       break;
     case Game_Status.ENDVIDEO:
+      sfx.clockSound.stop()
+
       playLionSound = false;
       startEndVideo()
       break;
@@ -832,8 +856,21 @@ function startIntroVideo(){
 
 function finishIntroVideo(event){
   introVideo.classList.remove("video-focus");
-  setGameStatus(Game_Status.PLAYING)
 
+  countdownVideo.classList.add("video-focus")
+    
+    countdownVideo.play()
+    .then(() => console.log('Playback started'))
+    .catch(err => console.error('Playback failed:', err));
+
+   countdownVideo.addEventListener('ended',finishCountdownVideo,false);
+  // setGameStatus(Game_Status.PLAYING)
+
+}
+
+function finishCountdownVideo(event){
+  countdownVideo.classList.remove("video-focus");
+  setGameStatus(Game_Status.PLAYING)
 }
 
 function startEndVideo(){
@@ -869,6 +906,16 @@ function reduceTimeMessage(){
   reduceTimeAlarmVisible = true;
 }
 
+document.addEventListener("HalfHourAlert", halfHourMessage);
+
+function halfHourMessage(){
+   sfx.alarmSound.play();
+
+    halfHourMessageTime = 10;
+    halfHourMessageAlpha = 1;
+    halfHourMessageVisible = true;
+}
+
 function getGameAveragePulse(){
   let sum = 0;
 
@@ -894,7 +941,7 @@ function openAdminTool(){
   console.log(passwordInputs[0].id)
   for(let i = 0; i<passwordInputs.length; i++){
     tasks.forEach(t => {
-    if("OPPGAVE " +passwordInputs[i].id == t.Tittle_line_1){
+    if("FINN KONVOLUTT " +passwordInputs[i].id == t.Tittle_line_1){
       passwordInputs[i].value = t.Goal;
     }
   })
@@ -929,7 +976,7 @@ function getTaskPasswords(taskCode, newPassword){
 
   let passwords = newPassword.split(',')
   tasks.forEach(t => {
-    if(t.Tittle_line_1 == "OPPGAVE "+ taskCode.toUpperCase()){
+    if(t.Tittle_line_1 == "FINN KONVOLUTT "+ taskCode.toUpperCase()){
       t.Goal = []
       passwords.forEach(np => {
         t.Goal.push(np.toUpperCase().trim())

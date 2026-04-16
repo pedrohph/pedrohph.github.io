@@ -1,7 +1,8 @@
 const sfx = {
     music: new Howl({
         src: ['assets/sfx/game_music.mp3'],
-        volume: 0.3,
+        // volume: 0.3,
+        volume: 0,
         loop: true
     }),
     natureSound: new Howl({
@@ -14,11 +15,13 @@ const sfx = {
         volume: 1.75
     }),
     correctPassword: new Howl({
-        src:['assets/sfx/password_correct.mp3']
+        src:['assets/sfx/password_correct.mp3'],
+        volume: 1.25
     }),
     incorrectPassword: new Howl({
         src:['assets/sfx/password_incorrect.mp3'],
-        loop: true
+        loop: true,
+        volume: 1.25
     }),
     reachPulseLevel: new Howl({
         src:['assets/sfx/reach_pulse_level.mp3']
@@ -47,7 +50,14 @@ const sfx = {
         loop: true
     }),
     clockSound: new Howl({
-        src:['assets/sfx/clock.mp3']
+        src:['assets/sfx/clock.mp3'],
+        rate: 1.1
+    }),
+    alarm5930: new Howl({
+        src:['assets/sfx/alarm-59-30.mp3'],
+    }),
+    alarm5600: new Howl({
+        src:['assets/sfx/alarm-56.mp3'],
     })
     
 }

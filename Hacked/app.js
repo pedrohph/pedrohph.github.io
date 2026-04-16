@@ -108,13 +108,17 @@ const newTimeInput = document.getElementById('new-game-time');
 
 const passwordInputs = document.getElementsByClassName('password-input')
 
+let alarm59 = -1;
+let alarm56 = -1;
+let halfHourAlarm = 1800;
+
 setup();
 
 function setup() {
   sfx.natureSound.play()
   sfx.tigerSound.play()
 
-  console.log("Version 0.0.15")
+  console.log("Version 0.0.16")
   // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -126,7 +130,6 @@ function setup() {
   loadBoxes()
   update();
   tasks = taskReader.getTasks();
-
 }
 
 
@@ -160,6 +163,24 @@ function update(){
 
   timer.update(deltaTime);
   context.clearRect(0, 0, canvas.width, canvas.height);
+
+
+  //Alarms
+  if(alarm59 >= timer.time_left){
+    alarm59 -= 600;
+    sfx.alarm5930.play();
+  }
+  
+  if(alarm56 >= timer.time_left){
+    alarm56 -= 600;
+    sfx.alarm5600.play();
+  }
+
+  if(halfHourAlarm >= timer.time_left){
+    halfHourAlarm = -50;
+    halfHourMessage()
+  }
+  //End Alarms
 
   if(lionTimer > 0){
     lionTimer -= deltaTime;
@@ -823,11 +844,15 @@ function setGameStatus(newGameStatus){
 
       break;
     case Game_Status.INTROVIDEO:
+
+      alarm59 = timer.starter_time - 30;
+      alarm56 = timer.starter_time - 240;
+      halfHourAlarm = 1800;
       
       sfx.natureSound.stop()
       sfx.tigerSound.stop()
       startIntroVideo()
-      //setGameStatus(Game_Status.PLAYING)
+      // setGameStatus(Game_Status.PLAYING)
       break;
     case Game_Status.ENDVIDEO:
       sfx.clockSound.stop()
@@ -846,17 +871,18 @@ function setGameStatus(newGameStatus){
 
 function startIntroVideo(){
     introVideo.classList.add("video-focus")
-    
     introVideo.play()
     .then(() => console.log('Playback started'))
     .catch(err => console.error('Playback failed:', err));
 
    introVideo.addEventListener('ended',finishIntroVideo,false);
+  // finishIntroVideo()
 }
 
 function finishIntroVideo(event){
-  introVideo.classList.remove("video-focus");
-
+ introVideo.classList.remove("video-focus");
+  
+  countdownVideo.currentTime = 0.6;
   countdownVideo.classList.add("video-focus")
     
     countdownVideo.play()
@@ -906,7 +932,7 @@ function reduceTimeMessage(){
   reduceTimeAlarmVisible = true;
 }
 
-document.addEventListener("HalfHourAlert", halfHourMessage);
+//document.addEventListener("HalfHourAlert", halfHourMessage);
 
 function halfHourMessage(){
    sfx.alarmSound.play();

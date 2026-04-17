@@ -1,8 +1,7 @@
 const sfx = {
     music: new Howl({
         src: ['assets/sfx/game_music.mp3'],
-        // volume: 0.3,
-        volume: 0,
+        volume: 0.3,
         loop: true
     }),
     natureSound: new Howl({
@@ -50,8 +49,8 @@ const sfx = {
         loop: true
     }),
     clockSound: new Howl({
-        src:['assets/sfx/clock.mp3'],
-        rate: 1.1
+        src:['assets/sfx/countdownbothversionsofhacked.mp3'],
+        rate: 0.87
     }),
     alarm5930: new Howl({
         src:['assets/sfx/alarm-59-30.mp3'],

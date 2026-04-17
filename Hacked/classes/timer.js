@@ -48,10 +48,10 @@ class Timer{
         if(this.time_left <= this.tenMinutesAlert){
             sfx.clockSound.play()
             this.tenMinutesAlert -= 600;
-            if(this.firstAlertTime >= this.tenMinutesAlert){
-                sfx.clockSound.loop(true)
-                this.tenMinutesAlert = -2;
-            }
+            // if(this.tenMinutesAlert < 600){
+            //     sfx.clockSound.loop(true)
+            //     this.tenMinutesAlert = -2;
+            // }
         }
     }
     getTimeOnTimeFormat(){

@@ -118,7 +118,7 @@ function setup() {
   sfx.natureSound.play()
   sfx.tigerSound.play()
 
-  console.log("Version 0.0.16")
+  console.log("Version 0.0.17")
   // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -523,8 +523,8 @@ function drawTimer(){
   if(CurrentStatus==Game_Status.ENDSCREEN){
     return;
   }
-  if(reduceTimeAlarmVisible){
-    context.fillStyle = "rgb(255,0,0)"; 
+  if(reduceTimeAlarmVisible || halfHourMessageVisible){
+    context.fillStyle = "rgba(255,0,0, +"+ halfHourMessageAlpha +")"; 
 
   }else{
     context.fillStyle = "rgb(0,255,0)";
@@ -557,7 +557,6 @@ function drawTimer(){
   }
 
   if(halfHourMessageVisible){
-    //Teco teco
     halfHourMessageTime -= deltaTime;
     halfHourMessageAlpha -= deltaTime * 1.25;
 
@@ -567,16 +566,17 @@ function drawTimer(){
 
     if(halfHourMessageTime <= 0){
       halfHourMessageVisible = false;
+      halfHourMessageAlpha = 1;
       sfx.alarmSound.stop()
 
     }
     
     context.fillStyle = "rgba(255,0,0,"+halfHourMessageAlpha+")";
-    context.font = "normal 40px Alarm_Clock";
+    context.font = "normal 33px Alarm_Clock";
     context.textAlign = "center";
 
-    context.fillText("KUN EN 1/2",  canvas.width * 0.14, canvas.height*0.65)
-    context.fillText("TIME IGJEN!",  canvas.width * 0.14, canvas.height*0.7)
+    context.fillText("30 MIN. IGJEN!",  canvas.width * 0.14, canvas.height*0.65)
+    // context.fillText("TIME IGJEN!",  canvas.width * 0.14, canvas.height*0.7)
  
   }
 
@@ -845,7 +845,7 @@ function setGameStatus(newGameStatus){
       break;
     case Game_Status.INTROVIDEO:
 
-      alarm59 = timer.starter_time - 30;
+      alarm59 = timer.starter_time - 90;
       alarm56 = timer.starter_time - 240;
       halfHourAlarm = 1800;
       

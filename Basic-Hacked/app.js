@@ -881,8 +881,8 @@ function setGameStatus(newGameStatus){
       alarm56 = timer.starter_time - 240;
       halfHourAlarm = 1800;
      
-      startIntroVideo()
-      // setGameStatus(Game_Status.PLAYING)
+      // startIntroVideo()
+      setGameStatus(Game_Status.PLAYING)
       // setGameStatus(Game_Status.ENDVIDEO)
       break;
     case Game_Status.ENDVIDEO:

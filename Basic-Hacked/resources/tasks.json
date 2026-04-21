@@ -2,7 +2,7 @@
     "tasks":[{
         "Task_type": 0,
         "Tittle_line_1": "FÅ LAGPULS",
-        "Tittle_line_2": "OVER 120"
+        "Tittle_line_2": "OVER "
     },{
         "Task_type": 2,
         "Goal": ["DISKETT"],
@@ -11,7 +11,7 @@
     },{
         "Task_type": 1,
         "Tittle_line_1": "FÅ LAGPULS",
-        "Tittle_line_2": "UNDER 87"
+        "Tittle_line_2": "UNDER "
     },{
         "Task_type": 2,
         "Goal": ["5051"],
@@ -20,7 +20,7 @@
     },{
         "Task_type": 0,
         "Tittle_line_1": "FÅ LAGPULS",
-        "Tittle_line_2": "OVER 120"
+        "Tittle_line_2": "OVER "
     },{
         "Task_type": 2,
         "Goal": ["KRYPTERING"],
@@ -29,7 +29,7 @@
     },{
         "Task_type": 1,
         "Tittle_line_1": "FÅ LAGPULS",
-        "Tittle_line_2": "UNDER 87"
+        "Tittle_line_2": "UNDER "
     },{
         "Task_type": 2,
         "Goal": ["SCRIFO"],
@@ -38,7 +38,7 @@
     },{
         "Task_type": 0,
         "Tittle_line_1": "FÅ LAGPULS",
-        "Tittle_line_2": "OVER 120"
+        "Tittle_line_2": "OVER "
     },{
         "Task_type": 2,
         "Goal": ["TROJANER"],
@@ -47,16 +47,16 @@
     },{
         "Task_type": 1,
         "Tittle_line_1": "FÅ LAGPULS",
-        "Tittle_line_2": "UNDER 87"
+        "Tittle_line_2": "UNDER "
     },{
         "Task_type": 2,
-        "Goal": ["KABEL,LEDNING"],
+        "Goal": ["KABEL","LEDNING"],
         "Tittle_line_1": "FINN KONVOLUTT F",
         "Tittle_line_2": ""
     },{
         "Task_type": 0,
         "Tittle_line_1": "FÅ LAGPULS",
-        "Tittle_line_2": "OVER 120"
+        "Tittle_line_2": "OVER "
     },{
         "Task_type": 2,
         "Goal": ["BRANNMUR"],
@@ -65,7 +65,7 @@
     },{
         "Task_type": 1,
         "Tittle_line_1": "FÅ LAGPULS",
-        "Tittle_line_2": "UNDER 87"
+        "Tittle_line_2": "UNDER "
     },{
         "Task_type": 2,
         "Goal": ["31111"],

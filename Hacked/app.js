@@ -1,6 +1,7 @@
 import Timer from "./classes/timer.js";
 import sfx from "./classes/soundmanager.js";
 import TaskReader from "./classes/taskreader.js";
+import particle from "./classes/particles.js";
 
 const Game_Status = Object.freeze({
   ONBOARDING: '0',
@@ -112,13 +113,15 @@ let alarm59 = -1;
 let alarm56 = -1;
 let halfHourAlarm = 1800;
 
+
+let endParticles = []
 setup();
 
 function setup() {
   sfx.natureSound.play()
   sfx.tigerSound.play()
 
-  console.log("Version 0.0.17")
+  console.log("Version 0.0.18")
   // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -130,6 +133,8 @@ function setup() {
   loadBoxes()
   update();
   tasks = taskReader.getTasks();
+
+  createEndParticles()
 }
 
 
@@ -153,6 +158,16 @@ function update(){
     }
   }
 
+  if(CurrentStatus == Game_Status.ENDVIDEO){
+
+    if(endVideo.currentTime >= 5 && !sfx.endMusic.playing()){
+      console.log("Disparou")
+      sfx.aplauseSound.play()
+      sfx.endMusic.play();
+    }
+  }
+
+
   if(CurrentStatus == Game_Status.PLAYING){
     if(tasks[current_task].Task_type == 2 && specialMessageTimer <= 0){
       inputBox.focus();
@@ -163,7 +178,6 @@ function update(){
 
   timer.update(deltaTime);
   context.clearRect(0, 0, canvas.width, canvas.height);
-
 
   //Alarms
   if(alarm59 >= timer.time_left){
@@ -278,7 +292,6 @@ function checkObjective(){
       completePulseTask();
     }
   }
-  
 }
 
 function loadBoxes(){
@@ -349,6 +362,7 @@ function drawFirstImage(){
 }
 
 function drawGoalImages(){
+
   if(centerImagePulse == undefined){
     centerImagePulse = new Image()
     centerImagePulse.src = "assets/images/pulse_image.jpeg"
@@ -381,6 +395,22 @@ function drawGoalImages(){
   }
   context.drawImage(boxCenter, canvas.width * 0.5 - 981*0.25, canvas.height * 0.5 -  970*0.25 , 981*0.5, 970*0.5);
 
+
+  if(CurrentStatus == Game_Status.ENDSCREEN){
+  let allDead = true;
+    endParticles.forEach(particle => {
+      if(!particle.dead){
+        allDead = false;
+        particle.draw(deltaTime)
+      }
+    });
+    if(allDead && sfx.endMusic.playing()){
+      endParticles.length = 0;
+      createEndParticles();
+      sfx.confettiSound.play()
+
+    }
+  }
 }
 
 function drawTextBoxes(){
@@ -851,17 +881,21 @@ function setGameStatus(newGameStatus){
       
       sfx.natureSound.stop()
       sfx.tigerSound.stop()
-      startIntroVideo()
+      // startIntroVideo()
       // setGameStatus(Game_Status.PLAYING)
+      setGameStatus(Game_Status.ENDVIDEO)
       break;
     case Game_Status.ENDVIDEO:
+      sfx.music.stop();
       sfx.clockSound.stop()
 
       playLionSound = false;
       startEndVideo()
       break;
     case Game_Status.ENDSCREEN:
-      sfx.aplauseSound.play()
+      // sfx.endMusic.play()
+      sfx.confettiSound.play()
+      sfx.aplauseSound.loop(false)
       break;
     case Game_Status.TIMEBEFOREEND:
       endTimer = 2;
@@ -1010,4 +1044,28 @@ function getTaskPasswords(taskCode, newPassword){
     }
   });
   
+}
+
+function createEndParticles(){
+  for(let i = 0; i<75; i++){
+    endParticles.push(new particle(canvas.width * 0.5 - 981*0.19, 200+i*4.5, Math.random()*12+10, Math.random() + 0.7, ""))
+    // endParticles[endParticles.length-1].setSpeed(-10 * Math.random()*5+5, (Math.random() * 2 - 1) * 15)
+    endParticles[endParticles.length-1].setSpeed(-10 * Math.random()*5+5, (Math.random() * -15 - 1) * 15)
+  }
+  for(let i = 0; i<75; i++){
+    endParticles.push(new particle(canvas.width * 0.5 + 981*0.19, 200+i*4.5, Math.random()*12+10, Math.random() + 0.7, ""))
+    // endParticles[endParticles.length-1].setSpeed(10 * Math.random()*5+5, (Math.random() * 2 - 1) * 15)
+    endParticles[endParticles.length-1].setSpeed(10 * Math.random()*5+5, (Math.random() * -15 - 1) * 15)
+
+  }
+   for(let i = 0; i<75; i++){
+    endParticles.push(new particle(canvas.width * 0.5 - 981*0.19 +i*4.5, canvas.height * 0.5 - 970*0.2, Math.random()*12+10, Math.random() + 0.7, ""))
+    // endParticles[endParticles.length-1].setSpeed((Math.random() * 2 - 1) * 15, -20 * Math.random()*5+5)
+    endParticles[endParticles.length-1].setSpeed((Math.random() * 2 - 1) * 15, -50 * Math.random()*5+5)
+  }
+   for(let i = 0; i<75; i++){
+    endParticles.push(new particle(canvas.width * 0.5 - 981*0.19 +i*4.5, canvas.height * 0.5 + 970*0.2, Math.random()*12+10, Math.random() + 0.7, ""))
+    // endParticles[endParticles.length-1].setSpeed((Math.random() * 2 - 1) * 15, 20 * Math.random()*5+5)
+    endParticles[endParticles.length-1].setSpeed((Math.random() * 2 - 1) * 15, -50 * Math.random()*5+5)
+  }
 }

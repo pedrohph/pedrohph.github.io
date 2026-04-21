@@ -11,7 +11,7 @@ const sfx = {
     }),
     lastTaskSound: new Howl({
         src:['assets/sfx/last_task.mp3'],
-        volume: 1.75
+        volume: 2
     }),
     correctPassword: new Howl({
         src:['assets/sfx/password_correct.mp3'],
@@ -37,7 +37,9 @@ const sfx = {
 
     }),
     aplauseSound: new Howl({
-        src:['assets/sfx/aplausesSound.mp3']
+        src:['assets/sfx/aplausesSound.mp3'],
+        loop: true,
+        volume: 0.85
     }),
     tigerSound: new Howl({
         src:['assets/sfx/sherimfal-tiger-light-roar-t-293716.mp3'],
@@ -57,6 +59,12 @@ const sfx = {
     }),
     alarm5600: new Howl({
         src:['assets/sfx/alarm-56.mp3'],
+    }),
+    endMusic: new Howl({
+        src:['assets/sfx/end-music.mp3']
+    }),
+    confettiSound: new Howl({
+        src:['assets/sfx/confetti_sound.mp3']
     })
     
 }

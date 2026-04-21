@@ -120,7 +120,7 @@ setup();
 function setup() {
   sfx.introSound.play()
 
-  console.log("Version 0.0.2")
+  console.log("Version 0.0.2a")
   // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -881,8 +881,8 @@ function setGameStatus(newGameStatus){
       alarm56 = timer.starter_time - 240;
       halfHourAlarm = 1800;
      
-      // startIntroVideo()
-      setGameStatus(Game_Status.PLAYING)
+      startIntroVideo()
+      // setGameStatus(Game_Status.PLAYING)
       // setGameStatus(Game_Status.ENDVIDEO)
       break;
     case Game_Status.ENDVIDEO:

@@ -1,7 +1,6 @@
 const sfx = {
      music: new Howl({
         src: ['assets/sfx/game_music.mp3'],
-        volume: 0.3,
         loop: true
     }),
     introSound: new Howl({

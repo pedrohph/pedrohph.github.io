@@ -120,7 +120,7 @@ setup();
 function setup() {
   sfx.introSound.play()
 
-  console.log("Version 0.0.2a")
+  console.log("Version 0.0.2b")
   // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -863,7 +863,7 @@ function setGameStatus(newGameStatus){
   switch(CurrentStatus){
     case Game_Status.PLAYING:
       timer.startTimer();
-      //sfx.music.play()
+      sfx.music.play()
       sfx.quickPulse.play()
 
       highestBPM = -1;
@@ -873,13 +873,15 @@ function setGameStatus(newGameStatus){
 
       break;
     case Game_Status.ONBOARDING:
+      sfx.music.play()
       sfx.introSound.stop()
       break;
-    case Game_Status.INTROVIDEO:
 
+    case Game_Status.INTROVIDEO:
       alarm59 = timer.starter_time - 90;
       alarm56 = timer.starter_time - 240;
       halfHourAlarm = 1800;
+      sfx.music.stop()
      
       startIntroVideo()
       // setGameStatus(Game_Status.PLAYING)

@@ -1,6 +1,7 @@
 import Timer from "./classes/timer.js";
 import sfx from "./classes/soundmanager.js";
 import TaskReader from "./classes/taskreader.js";
+import particle from "./classes/particles.js";
 
 const Game_Status = Object.freeze({
   ONBOARDING: '0',
@@ -14,6 +15,7 @@ const Game_Status = Object.freeze({
 
 const introVideo = document.getElementById('Intro-Video');
 const endVideo = document.getElementById('End-Video');
+const countdownVideo = document.getElementById('Countdown-Video');
 
 let removed_device_list = []
 let device_list = []
@@ -29,6 +31,9 @@ let lowestBPM = 256;
 let gameAverageBPM = []
 
 let timerToCheck = 30;
+
+let underTasksValue = 82;
+let overTasksValue = 120;
 
 let current_task = 0;
 let current_text_line1 = "FÅ LAGPULS"
@@ -81,6 +86,11 @@ let alarmMessageTime = 0;
 let alarmMessageAlpha = 1;
 let alarmMessageVisible = true;
 
+let halfHourMessageTime = 0;
+let halfHourMessageAlpha = 1;
+let halfHourMessageVisible = true;
+
+
 let recudeTimeAlarmTime = 0;
 let reduceTimeAlarmAlpha = 1;
 let reduceTimeAlarmVisible = false;
@@ -89,12 +99,29 @@ let firstScreenImage
 let endTimer = 0;
 
 
+let adminToolIsOpen = false;
+const adminTool = document.getElementById('admin-tool-container');
+const confirmButton = document.getElementById('button-confirm-admin-tool');
+const cancelButton = document.getElementById('button-cancel-admin-tool');
+const underPulseInput = document.getElementById('under-pulse-value');
+const overPulseInput = document.getElementById('over-pulse-value');
+const newTimeInput = document.getElementById('new-game-time');
+
+const passwordInputs = document.getElementsByClassName('password-input')
+
+let alarm59 = -1;
+let alarm56 = -1;
+let halfHourAlarm = 1800;
+
+
+let endParticles = []
 setup();
 
 function setup() {
   sfx.introSound.play()
 
-  console.log("Version 0.0.1")
+  console.log("Version 0.0.2")
+  // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
 
@@ -105,6 +132,8 @@ function setup() {
   loadBoxes()
   update();
   tasks = taskReader.getTasks();
+
+  createEndParticles()
 }
 
 
@@ -128,6 +157,16 @@ function update(){
     }
   }
 
+  if(CurrentStatus == Game_Status.ENDVIDEO){
+
+    if(endVideo.currentTime >= 5 && !sfx.endMusic.playing()){
+      console.log("Disparou")
+      sfx.aplauseSound.play()
+      sfx.endMusic.play();
+    }
+  }
+
+
   if(CurrentStatus == Game_Status.PLAYING){
     if(tasks[current_task].Task_type == 2 && specialMessageTimer <= 0){
       inputBox.focus();
@@ -138,6 +177,23 @@ function update(){
 
   timer.update(deltaTime);
   context.clearRect(0, 0, canvas.width, canvas.height);
+
+  //Alarms
+  if(alarm59 >= timer.time_left){
+    alarm59 -= 600;
+    sfx.alarm5930.play();
+  }
+  
+  if(alarm56 >= timer.time_left){
+    alarm56 -= 600;
+    sfx.alarm5600.play();
+  }
+
+  if(halfHourAlarm >= timer.time_left){
+    halfHourAlarm = -50;
+    halfHourMessage()
+  }
+  //End Alarms
 
   if(lionTimer > 0){
     lionTimer -= deltaTime;
@@ -211,7 +267,7 @@ function getHigherAndLower(){
 
 function checkObjective(){
   if(tasks == [] || tasks == undefined){
-    tasks.taskReader.getTasks();
+    tasks = taskReader.getTasks();
   }
 
   if(current_task >= tasks.length){
@@ -227,15 +283,14 @@ function checkObjective(){
   }
 
   if(tasks[current_task].Task_type == 0){
-     if(averageBPM >= tasks[current_task].Goal && averageBPM > 0){
+     if(averageBPM >= overTasksValue && averageBPM > 0){
       completePulseTask()
     }
   }else if(tasks[current_task].Task_type == 1){
-    if(averageBPM <= tasks[current_task].Goal && averageBPM > 0){
+    if(averageBPM <= underTasksValue && averageBPM > 0){
       completePulseTask();
     }
   }
-  
 }
 
 function loadBoxes(){
@@ -306,6 +361,7 @@ function drawFirstImage(){
 }
 
 function drawGoalImages(){
+
   if(centerImagePulse == undefined){
     centerImagePulse = new Image()
     centerImagePulse.src = "assets/images/pulse_image.jpeg"
@@ -338,6 +394,22 @@ function drawGoalImages(){
   }
   context.drawImage(boxCenter, canvas.width * 0.5 - 981*0.25, canvas.height * 0.5 -  970*0.25 , 981*0.5, 970*0.5);
 
+
+  if(CurrentStatus == Game_Status.ENDSCREEN){
+  let allDead = true;
+    endParticles.forEach(particle => {
+      if(!particle.dead){
+        allDead = false;
+        particle.draw(deltaTime)
+      }
+    });
+    if(allDead && sfx.endMusic.playing()){
+      endParticles.length = 0;
+      createEndParticles();
+      sfx.confettiSound.play()
+
+    }
+  }
 }
 
 function drawTextBoxes(){
@@ -395,8 +467,8 @@ function drawEndingScreen(){
   context.font = "normal 30px Impact";
   context.fillText("GRATULERER DERE FANT KRYPTERINGSKODEN!".toUpperCase(), canvas.width/2, 80, 1500*0.5)
 
-//   context.font = "normal 25px Impact";
-//  context.fillText("DYREPARKEN/HACKED".toUpperCase(), canvas.width/2, canvas.height - 50)
+  context.font = "normal 25px Impact";
+ context.fillText("DYREPARKEN/HACKED".toUpperCase(), canvas.width/2, canvas.height - 50)
 
   context.fillStyle = "rgb(0,255,0)";
   context.textAlign = "center";
@@ -480,8 +552,8 @@ function drawTimer(){
   if(CurrentStatus==Game_Status.ENDSCREEN){
     return;
   }
-  if(reduceTimeAlarmVisible){
-    context.fillStyle = "rgb(255,0,0)"; 
+  if(reduceTimeAlarmVisible || halfHourMessageVisible){
+    context.fillStyle = "rgba(255,0,0, +"+ halfHourMessageAlpha +")"; 
 
   }else{
     context.fillStyle = "rgb(0,255,0)";
@@ -511,6 +583,30 @@ function drawTimer(){
     context.textAlign = "center";
 
     context.fillText("HASTER!",  canvas.width * 0.14, canvas.height*0.65)
+  }
+
+  if(halfHourMessageVisible){
+    halfHourMessageTime -= deltaTime;
+    halfHourMessageAlpha -= deltaTime * 1.25;
+
+    if(halfHourMessageAlpha <= 0){
+      halfHourMessageAlpha = 1;
+    }
+
+    if(halfHourMessageTime <= 0){
+      halfHourMessageVisible = false;
+      halfHourMessageAlpha = 1;
+      sfx.alarmSound.stop()
+
+    }
+    
+    context.fillStyle = "rgba(255,0,0,"+halfHourMessageAlpha+")";
+    context.font = "normal 33px Alarm_Clock";
+    context.textAlign = "center";
+
+    context.fillText("30 MIN. IGJEN!",  canvas.width * 0.14, canvas.height*0.65)
+    // context.fillText("TIME IGJEN!",  canvas.width * 0.14, canvas.height*0.7)
+ 
   }
 
    if(reduceTimeAlarmVisible){
@@ -550,6 +646,13 @@ function drawTextOnCenter(){
   current_text_line1 = tasks[current_task].Tittle_line_1;
   current_text_line2 = tasks[current_task].Tittle_line_2;
 
+  if(tasks[current_task].Task_type == 0){
+    current_text_line2 += overTasksValue
+  }else if(tasks[current_task].Task_type == 1){
+    current_text_line2 += underTasksValue
+
+  }
+
   context.strokeStyle = "black";
   context.lineWidth = 3;
   context.fillStyle = "white";
@@ -573,15 +676,19 @@ canvas.addEventListener('click', (event) => {
 })
 
 document.addEventListener('keydown', function(event) {
-  if(event.shiftKey && event.key == '@' && CurrentStatus == Game_Status.ONBOARDING){
-    taskReader.setTaskFiles()
-  }
+  //Tornar um padrão mais prático
   if(event.code == 'Space' && CurrentStatus == Game_Status.ONBOARDING){
-    // setGameStatus(Game_Status.INTROVIDEO)
-    setGameStatus(Game_Status.PLAYING)
+    setGameStatus(Game_Status.INTROVIDEO)
+    // setGameStatus(Game_Status.PLAYING)
   }else  if(event.code == 'Space' && CurrentStatus == Game_Status.BEFORESTART){
+    if(adminToolIsOpen){
+      return;  
+    }
     setGameStatus(Game_Status.ONBOARDING)
-    tasks = taskReader.getTasks();
+    
+    if(tasks.length <= 0){
+      tasks = taskReader.getTasks();
+    }
   }
 
   if(CurrentStatus == Game_Status.PLAYING){
@@ -589,6 +696,12 @@ document.addEventListener('keydown', function(event) {
       if(tasks[current_task].Task_type < 2){
         completePulseTask()
       }
+    }
+  }
+  if(CurrentStatus == Game_Status.BEFORESTART){
+    if(event.ctrlKey && event.shiftKey && event.key === 'E'){
+      openAdminTool();
+      // adminTool.classList.add("hidden")
     }
   }
 });
@@ -750,6 +863,7 @@ function setGameStatus(newGameStatus){
   switch(CurrentStatus){
     case Game_Status.PLAYING:
       timer.startTimer();
+      //sfx.music.play()
       sfx.quickPulse.play()
 
       highestBPM = -1;
@@ -761,16 +875,27 @@ function setGameStatus(newGameStatus){
     case Game_Status.ONBOARDING:
       sfx.introSound.stop()
       break;
-    
     case Game_Status.INTROVIDEO:
+
+      alarm59 = timer.starter_time - 90;
+      alarm56 = timer.starter_time - 240;
+      halfHourAlarm = 1800;
+     
       startIntroVideo()
+      // setGameStatus(Game_Status.PLAYING)
+      // setGameStatus(Game_Status.ENDVIDEO)
       break;
     case Game_Status.ENDVIDEO:
+     // sfx.music.stop();
+      sfx.clockSound.stop()
+
       playLionSound = false;
       startEndVideo()
       break;
     case Game_Status.ENDSCREEN:
-      sfx.aplauseSound.play()
+      // sfx.endMusic.play()
+      sfx.confettiSound.play()
+      sfx.aplauseSound.loop(false)
       break;
     case Game_Status.TIMEBEFOREEND:
       endTimer = 2;
@@ -780,18 +905,32 @@ function setGameStatus(newGameStatus){
 
 function startIntroVideo(){
     introVideo.classList.add("video-focus")
-    
     introVideo.play()
     .then(() => console.log('Playback started'))
     .catch(err => console.error('Playback failed:', err));
 
    introVideo.addEventListener('ended',finishIntroVideo,false);
+  // finishIntroVideo()
 }
 
 function finishIntroVideo(event){
-  introVideo.classList.remove("video-focus");
-  setGameStatus(Game_Status.PLAYING)
+ introVideo.classList.remove("video-focus");
+  
+  countdownVideo.currentTime = 0.6;
+  countdownVideo.classList.add("video-focus")
+    
+    countdownVideo.play()
+    .then(() => console.log('Playback started'))
+    .catch(err => console.error('Playback failed:', err));
 
+   countdownVideo.addEventListener('ended',finishCountdownVideo,false);
+  // setGameStatus(Game_Status.PLAYING)
+
+}
+
+function finishCountdownVideo(event){
+  countdownVideo.classList.remove("video-focus");
+  setGameStatus(Game_Status.PLAYING)
 }
 
 function startEndVideo(){
@@ -827,6 +966,16 @@ function reduceTimeMessage(){
   reduceTimeAlarmVisible = true;
 }
 
+//document.addEventListener("HalfHourAlert", halfHourMessage);
+
+function halfHourMessage(){
+   sfx.alarmSound.play();
+
+    halfHourMessageTime = 10;
+    halfHourMessageAlpha = 1;
+    halfHourMessageVisible = true;
+}
+
 function getGameAveragePulse(){
   let sum = 0;
 
@@ -835,4 +984,88 @@ function getGameAveragePulse(){
   });
 
   return sum / gameAverageBPM.length;
+}
+
+
+function openAdminTool(){
+  if(tasks.length == 0){
+    tasks = taskReader.getTasks();
+  }
+ 
+  adminTool.classList.remove('hidden')
+  adminToolIsOpen = true;
+
+  underPulseInput.value = underTasksValue;
+  overPulseInput.value = overTasksValue;
+
+  console.log(passwordInputs[0].id)
+  for(let i = 0; i<passwordInputs.length; i++){
+    tasks.forEach(t => {
+    if("FINN KONVOLUTT " +passwordInputs[i].id == t.Tittle_line_1){
+      passwordInputs[i].value = t.Goal;
+    }
+  })
+  }
+  
+}
+
+confirmButton.addEventListener('click', () =>{
+  underTasksValue = underPulseInput.value
+  overTasksValue = overPulseInput.value
+  timer.setTotalTimer(newTimeInput.value * 60);
+
+
+   for(let i = 0; i<passwordInputs.length; i++){
+    getTaskPasswords(passwordInputs[i].id, passwordInputs[i].value)
+   }
+  
+
+  console.log("Confirmou!")
+  adminTool.classList.add('hidden')
+  adminToolIsOpen = false;
+
+})
+
+cancelButton.addEventListener('click', () =>{
+  adminTool.classList.add('hidden')
+  adminToolIsOpen = false;
+
+})
+
+function getTaskPasswords(taskCode, newPassword){
+
+  let passwords = newPassword.split(',')
+  tasks.forEach(t => {
+    if(t.Tittle_line_1 == "FINN KONVOLUTT "+ taskCode.toUpperCase()){
+      t.Goal = []
+      passwords.forEach(np => {
+        t.Goal.push(np.toUpperCase().trim())
+      });
+    }
+  });
+  
+}
+
+function createEndParticles(){
+  for(let i = 0; i<75; i++){
+    endParticles.push(new particle(canvas.width * 0.5 - 981*0.19, 200+i*4.5, Math.random()*12+10, Math.random() + 0.7, ""))
+    // endParticles[endParticles.length-1].setSpeed(-10 * Math.random()*5+5, (Math.random() * 2 - 1) * 15)
+    endParticles[endParticles.length-1].setSpeed(-10 * Math.random()*5+5, (Math.random() * -15 - 1) * 15)
+  }
+  for(let i = 0; i<75; i++){
+    endParticles.push(new particle(canvas.width * 0.5 + 981*0.19, 200+i*4.5, Math.random()*12+10, Math.random() + 0.7, ""))
+    // endParticles[endParticles.length-1].setSpeed(10 * Math.random()*5+5, (Math.random() * 2 - 1) * 15)
+    endParticles[endParticles.length-1].setSpeed(10 * Math.random()*5+5, (Math.random() * -15 - 1) * 15)
+
+  }
+   for(let i = 0; i<75; i++){
+    endParticles.push(new particle(canvas.width * 0.5 - 981*0.19 +i*4.5, canvas.height * 0.5 - 970*0.2, Math.random()*12+10, Math.random() + 0.7, ""))
+    // endParticles[endParticles.length-1].setSpeed((Math.random() * 2 - 1) * 15, -20 * Math.random()*5+5)
+    endParticles[endParticles.length-1].setSpeed((Math.random() * 2 - 1) * 15, -50 * Math.random()*5+5)
+  }
+   for(let i = 0; i<75; i++){
+    endParticles.push(new particle(canvas.width * 0.5 - 981*0.19 +i*4.5, canvas.height * 0.5 + 970*0.2, Math.random()*12+10, Math.random() + 0.7, ""))
+    // endParticles[endParticles.length-1].setSpeed((Math.random() * 2 - 1) * 15, 20 * Math.random()*5+5)
+    endParticles[endParticles.length-1].setSpeed((Math.random() * 2 - 1) * 15, -50 * Math.random()*5+5)
+  }
 }

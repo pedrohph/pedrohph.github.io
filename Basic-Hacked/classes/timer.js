@@ -11,10 +11,14 @@ class Timer{
     secondAlert = false;
     secondAlertTime = 300;
 
+    tenMinutesAlert = 0;
+
     constructor(){
         this.start_time = false;
         
         this.starter_time = this.time_left;
+        this.tenMinutesAlert = this.starter_time;
+
     }
 
     update(deltaTime){
@@ -34,13 +38,20 @@ class Timer{
         if (this.time_left <= this.secondAlertTime && !this.secondAlert){
             this.secondAlert = true;
             document.dispatchEvent(this.alertEvent);
-
         }
 
         if(this.time_left <= 0){
             this.time_left = 0;
-
            // sfx.timerOver.play();
+        }
+
+        if(this.time_left <= this.tenMinutesAlert){
+            sfx.clockSound.play()
+            this.tenMinutesAlert -= 600;
+            // if(this.tenMinutesAlert < 600){
+            //     sfx.clockSound.loop(true)
+            //     this.tenMinutesAlert = -2;
+            // }
         }
     }
     getTimeOnTimeFormat(){
@@ -49,6 +60,12 @@ class Timer{
 
     getTimeLeft(){
         return this.time_left;
+    }
+
+    setTotalTimer(newTime){
+        this.time_left = newTime;
+        this.starter_time = this.time_left
+        this.tenMinutesAlert = this.starter_time;
     }
 
     startTimer(){

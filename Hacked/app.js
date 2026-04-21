@@ -882,7 +882,7 @@ function setGameStatus(newGameStatus){
       sfx.natureSound.stop()
       sfx.tigerSound.stop()
       startIntroVideo()
-      setGameStatus(Game_Status.PLAYING)
+      // setGameStatus(Game_Status.PLAYING)
       // setGameStatus(Game_Status.ENDVIDEO)
       break;
     case Game_Status.ENDVIDEO:

@@ -36,6 +36,69 @@
 
     margin: auto;
 }
+.hidden{
+    display: none;
+}
+
+.admin-tool{
+    z-index: 2;
+    position: fixed;
+
+    width: 50%;
+    background-color: lightgray; /* Define a cor de fundo */
+    border: 2px solid black;     /* Define a borda */
+    padding: 10px;              /* Espaço interno */
+    margin: 10px;               /* Espaço externo */
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);   
+    
+    text-align: center;
+    font-size: 13pt;
+}
+.admin-tool input{
+    height: 30px;
+    text-align: center;
+    font-size: 13pt;
+    margin-bottom: 5px;
+    font-family: 'Sauber';
+}
+
+.admin-tool .password-input{
+    width: 70%;
+}
+
+.pulse-input{
+    width: 50px;
+    font-family: 'Sauber';
+}
+
+.admin-tool input.pulse-input{
+    margin-right: 75px;
+}
+
+.admin-tool button.red-button{
+    background-color: red;
+}
+
+.admin-tool button.green-button{
+    background-color: green;
+}
+/* .admin-tool div.header {
+  grid-area: header;
+  text-align: center;
+} */
+
+.admin-tool button{
+    border: 0px;  
+    height: 50px;
+    width: 150px;
+
+    margin-left: 50px;
+    margin-right: 50px;
+
+}
 
 @supports (height: 100dvh) {
     #main-canvas{
@@ -53,7 +116,7 @@
     }
   }
 
-  #Intro-Video{
+  video{
     position: absolute;
     width: 100dvw;
     height: 100dvh;
@@ -61,13 +124,13 @@
     left: 0;
   }
 
-   #End-Video{
+   /* #End-Video{
     position: absolute;
     width: 100dvw;
     height: 100dvh;
     top: 0;
     left: 0;
-  }
+  } */
 
   .video-focus{
     z-index: 1;

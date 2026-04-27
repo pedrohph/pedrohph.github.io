@@ -2,6 +2,7 @@ import Timer from "./classes/timer.js";
 import sfx from "./classes/soundmanager.js";
 import TaskReader from "./classes/taskreader.js";
 import particle from "./classes/particles.js";
+import movingImage from "./classes/movingImage.js";
 
 const Game_Status = Object.freeze({
   ONBOARDING: '0',
@@ -47,6 +48,7 @@ let totalUsedTime = "00:00"
 let typeBarAlpha = 1;
 
 let fullCode = ""
+let endAlpha = 1;
 
 let taskReader = new TaskReader();
 let tasks = [];
@@ -113,6 +115,8 @@ let alarm59 = -1;
 let alarm56 = -1;
 let halfHourAlarm = 1800;
 
+let movingUnImage;
+let movingUn;
 
 let endParticles = []
 setup();
@@ -120,7 +124,7 @@ setup();
 function setup() {
   sfx.introSound.play()
 
-  console.log("Version 0.0.2b")
+  console.log("Version 0.0.3")
   // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -311,6 +315,14 @@ function loadBoxes(){
 
   textBoxRightBottom = new Image()
   textBoxRightBottom.src = "assets/images/UI box bottom right.png"
+
+  movingUnImage = new Image()
+  movingUnImage.src = "assets/images/hacked_centre_logo_UN.png"
+  movingUnImage.onload = function(){
+   
+    movingUn = new movingImage(canvas.width/2, canvas.height/2, 422*0.36, 310*0.36, movingUnImage)
+
+  }
 }
 
 function drawBackground(){
@@ -370,16 +382,27 @@ function drawGoalImages(){
     centerImageEnvelope.src = "assets/images/task_image.jpeg"
 
     centerImageTiger = new Image()
-    centerImageTiger.src = "assets/images/intro_image.jpeg"
+    centerImageTiger.src = "assets/images/intro_image.png"
     return;
   }
 
   if(CurrentStatus == Game_Status.ONBOARDING){
-    context.drawImage(centerImageTiger, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
+
+    context.beginPath();
+    context.rect(canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385); // Add a rectangle to the current path
+    context.fillStyle = "black"
+    context.fill(); 
+    context.drawImage(centerImageTiger, canvas.width * 0.5 - 975*0.19, canvas.height * 0.5 -  970*0.19 , 940*0.385, 940*0.385);
     //drawOnboardingScreen()
 
   }else if(CurrentStatus == Game_Status.ENDSCREEN){
-    context.drawImage(centerImageTiger, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
+
+     context.beginPath(); 
+    context.rect(canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385); // Add a rectangle to the current path
+    context.fillStyle = "black"
+    context.fill();
+
+    context.drawImage(centerImageTiger, canvas.width * 0.5 - 975*0.19, canvas.height * 0.5 -  970*0.19 , 940*0.385, 940*0.385);
     drawUsedTime();
     drawEndingScreen();
     //Draw Status Screen
@@ -396,7 +419,9 @@ function drawGoalImages(){
 
 
   if(CurrentStatus == Game_Status.ENDSCREEN){
-  let allDead = true;
+    let allDead = true;
+    movingUn.draw()
+
     endParticles.forEach(particle => {
       if(!particle.dead){
         allDead = false;
@@ -468,7 +493,7 @@ function drawEndingScreen(){
   context.fillText("GRATULERER DERE FANT KRYPTERINGSKODEN!".toUpperCase(), canvas.width/2, 80, 1500*0.5)
 
   context.font = "normal 25px Impact";
- context.fillText("DYREPARKEN/HACKED".toUpperCase(), canvas.width/2, canvas.height - 50)
+ context.fillText("HACKED".toUpperCase(), canvas.width/2, canvas.height - 50)
 
   context.fillStyle = "rgb(0,255,0)";
   context.textAlign = "center";
@@ -490,11 +515,27 @@ function drawCodeBar(){
    if(CurrentStatus==Game_Status.ENDSCREEN){
     return;
   }
-  context.fillStyle = "white";
   context.font = "normal 24px Sauber";
+
+  if(CurrentStatus == Game_Status.TIMEBEFOREEND){
+    endAlpha -= deltaTime * 1;
+    if(endAlpha <= 0){
+      endAlpha = 1;
+    }
+    context.fillStyle = "rgba(0,255,0,"+endAlpha+")";
+  }else{
+    context.fillStyle = "white";
+  }
+
 
   typeBarAlpha -= deltaTime;
     context.fillText(fullCode.toUpperCase(), canvas.width/2, 80, 1500*0.5)
+
+    // if(CurrentStatus == Game_Status.TIMEBEFOREEND){
+    //   context.fillStyle = "rgba(0,255,0,"+1-endAlpha+")";
+    //   context.fillText("Dere løste koden.", canvas.width/2, 80, 1500*0.5)
+    // } 
+
 }
 
 function drawInputBarText(){
@@ -888,7 +929,7 @@ function setGameStatus(newGameStatus){
       // setGameStatus(Game_Status.ENDVIDEO)
       break;
     case Game_Status.ENDVIDEO:
-     // sfx.music.stop();
+     sfx.music.stop();
       sfx.clockSound.stop()
 
       playLionSound = false;
@@ -900,7 +941,8 @@ function setGameStatus(newGameStatus){
       sfx.aplauseSound.loop(false)
       break;
     case Game_Status.TIMEBEFOREEND:
-      endTimer = 2;
+      endTimer = 2.5;
+      timer.pauseTimer();
       break;
   }
 }

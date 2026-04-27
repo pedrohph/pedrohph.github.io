@@ -2,6 +2,8 @@ import sfx from "./soundmanager.js";
 
 class Timer{
     starter_time;
+    pause = false;
+
     time_left = 3600;
     start_time = false;
 
@@ -22,6 +24,9 @@ class Timer{
     }
 
     update(deltaTime){
+        if(this.pause){
+            return;
+        }
         if(!this.start_time){
             return;
         }
@@ -85,6 +90,14 @@ class Timer{
         if(this.time_left <= 0){
             this.time_left = 0;
         }
+    }
+
+    pauseTimer(){
+        this.pause = true;
+    }
+
+    continueTimer(){
+        this.pause = false;
     }
 
     alertEvent = new Event('TimeAlert', {

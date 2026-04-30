@@ -130,7 +130,7 @@ setup();
 function setup() {
   sfx.introSound.play()
 
-  console.log("Version 0.0.3")
+  console.log("Version 0.0.4")
   // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -170,7 +170,8 @@ function update(){
   if(CurrentStatus == Game_Status.ENDVIDEO){
 
     if(endVideo.currentTime >= 5 && !sfx.endMusic.playing()){
-      console.log("Disparou")
+      // console.log("Disparou")
+      sfx.music.stop()
       sfx.aplauseSound.play()
       sfx.endMusic.play();
     }
@@ -989,7 +990,7 @@ function setGameStatus(newGameStatus){
       // setGameStatus(Game_Status.ENDVIDEO)
       break;
     case Game_Status.ENDVIDEO:
-     sfx.music.stop();
+    //  sfx.music.stop();
       sfx.clockSound.stop()
 
       playLionSound = false;

@@ -69,11 +69,17 @@ let centerImageTiger;
 
 let boxCenter;
 let textBoxTop;
+let glowBoxTop;
+let fillEffectBoxTop;
 let textBoxBottom;
 let textBoxLeft;
 let textBoxRightTop;
 let textBoxRightBottom;
 let inputBox;
+
+let glowBoxAlpha = 0;
+let growingAlpha = true;
+let fillEffectTotal = 0.94;
 
 let specialMessageBottomBar = ""
 let specialMessageTimer = 0;
@@ -172,7 +178,7 @@ function update(){
 
 
   if(CurrentStatus == Game_Status.PLAYING){
-    if(tasks[current_task].Task_type == 2 && specialMessageTimer <= 0){
+    if(tasks[current_task].Task_type == 2 && specialMessageTimer <= 0 && !timer.pause){
       inputBox.focus();
     }else{ 
       inputBox.blur();
@@ -203,7 +209,11 @@ function update(){
     lionTimer -= deltaTime;
   }
 
-  getHigherAndLower()
+  if(!timer.pause){
+    getHigherAndLower()
+  }
+
+
 
   drawBackground()
   drawGoalImages()
@@ -303,6 +313,12 @@ function loadBoxes(){
 
   textBoxTop = new Image()
   textBoxTop.src = "assets/images/UI textbox top.png"
+
+  glowBoxTop = new Image()
+  glowBoxTop.src = "assets/images/UI_textbox_top_animation_full_box_glow.png"
+
+  fillEffectBoxTop = new Image()
+  fillEffectBoxTop.src = "assets/images/UI_textbox_top_animation_moving_bar.png"
 
   textBoxBottom = new Image()
   textBoxBottom.src = "assets/images/UI textbox bottom.png"
@@ -442,11 +458,43 @@ function drawTextBoxes(){
     return;
   }
   context.drawImage(textBoxTop, canvas.width * 0.5 - 1772*0.25, 0 , 1772*0.5, 265*0.5);
+
+  if(glowBoxAlpha >=1){
+    growingAlpha = false;
+  }
+
   context.drawImage(textBoxBottom, canvas.width * 0.5 - 1145*0.25, canvas.height - 237*0.5 , 1145*0.5, 237*0.5);
   context.drawImage(textBoxLeft, -50, canvas.height*0.6 - 937*0.25 , 854*0.5, 937*0.5);
   context.drawImage(textBoxRightTop, canvas.width - 935 * 0.5, canvas.height*0.5 - 450*0.5 , 844*0.5, 450*0.5);
   context.drawImage(textBoxRightBottom, canvas.width - 935 * 0.5, canvas.height*0.5, 935*0.5, 464*0.5);
 
+}
+
+function drawFinalPasswordEffect(){
+  if(fillEffectTotal > 0.0755){
+    fillEffectTotal -= deltaTime * 2.25;
+    if(fillEffectTotal <= 0.075){
+      fillEffectTotal = 0.075;
+    }
+
+  //X do corte, Y do corte, W a partir do corte, H a partir do corte, x, y, w, h. 
+
+    context.drawImage(fillEffectBoxTop, 1772 * fillEffectTotal,0, 1772, 265, canvas.width * 0.5 - 1772*0.212, 0 , 1772*0.5, 265*0.5);
+
+    return;
+  }
+  
+  if(growingAlpha){
+    glowBoxAlpha += deltaTime * 1.75;
+  }else{
+    glowBoxAlpha -= deltaTime * 2.75;
+    if(glowBoxAlpha <= 0){
+      glowBoxAlpha = 0;
+    }
+  }
+  context.globalAlpha = glowBoxAlpha;
+  context.drawImage(glowBoxTop, canvas.width * 0.5 - 1772*0.25, 0 , 1772*0.5, 265*0.5);
+  context.globalAlpha = 1
 }
 
 function drawPulseValues(){
@@ -516,25 +564,26 @@ function drawCodeBar(){
     return;
   }
   context.font = "normal 24px Sauber";
+  context.fillStyle = "white";
 
-  if(CurrentStatus == Game_Status.TIMEBEFOREEND){
-    endAlpha -= deltaTime * 1;
-    if(endAlpha <= 0){
-      endAlpha = 1;
-    }
-    context.fillStyle = "rgba(0,255,0,"+endAlpha+")";
-  }else{
-    context.fillStyle = "white";
-  }
+  // if(CurrentStatus == Game_Status.TIMEBEFOREEND){
+  //   endAlpha -= deltaTime * 1;
+  //   if(endAlpha <= 0){
+  //     endAlpha = 1;
+  //   }
+  //   context.fillStyle = "rgba(255,255,255,"+endAlpha+")";
+  // }else{
+  //   context.fillStyle = "white";
+  // }
 
 
   typeBarAlpha -= deltaTime;
     context.fillText(fullCode.toUpperCase(), canvas.width/2, 80, 1500*0.5)
 
-    // if(CurrentStatus == Game_Status.TIMEBEFOREEND){
-    //   context.fillStyle = "rgba(0,255,0,"+1-endAlpha+")";
-    //   context.fillText("Dere løste koden.", canvas.width/2, 80, 1500*0.5)
-    // } 
+   
+  if(CurrentStatus == Game_Status.TIMEBEFOREEND){
+    drawFinalPasswordEffect();
+  }
 
 }
 
@@ -738,6 +787,14 @@ document.addEventListener('keydown', function(event) {
         completePulseTask()
       }
     }
+
+    if(event.ctrlKey && event.shiftKey && event.key === 'L'){
+      if(timer.pause){
+        timer.continueTimer()
+      }else{
+        timer.pauseTimer()
+      }
+    }
   }
   if(CurrentStatus == Game_Status.BEFORESTART){
     if(event.ctrlKey && event.shiftKey && event.key === 'E'){
@@ -748,6 +805,9 @@ document.addEventListener('keydown', function(event) {
 });
 
 function handleEnter(e) {
+  if(timer.pause){
+    return;
+  }
   if(tasks[current_task].Task_type != 2){
     return;
   }

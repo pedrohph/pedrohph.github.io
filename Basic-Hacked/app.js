@@ -80,6 +80,7 @@ let inputBox;
 let glowBoxAlpha = 0;
 let growingAlpha = true;
 let fillEffectTotal = 0.94;
+let firstFillEffect= true;
 
 let specialMessageBottomBar = ""
 let specialMessageTimer = 0;
@@ -125,12 +126,13 @@ let movingUnImage;
 let movingUn;
 
 let endParticles = []
+let isScreenshotDone = false;
 setup();
 
 function setup() {
   sfx.introSound.play()
 
-  console.log("Version 0.0.4")
+  console.log("Version 0.0.5")
   // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -447,6 +449,10 @@ function drawGoalImages(){
     });
     if(allDead && sfx.endMusic.playing()){
       endParticles.length = 0;
+      if(!isScreenshotDone){
+        isScreenshotDone = true;
+        saveAsImage()
+      }
       createEndParticles();
       sfx.confettiSound.play()
 
@@ -474,11 +480,14 @@ function drawTextBoxes(){
 function drawFinalPasswordEffect(){
   if(fillEffectTotal > 0.0755){
     fillEffectTotal -= deltaTime * 2.25;
-    if(fillEffectTotal <= 0.075){
+    if(fillEffectTotal <= 0.075 && firstFillEffect){
+      fillEffectTotal = 0.94;
+      firstFillEffect = false;
+    }else if(fillEffectTotal <= 0.075){
       fillEffectTotal = 0.075;
     }
 
-  //X do corte, Y do corte, W a partir do corte, H a partir do corte, x, y, w, h. 
+    //X do corte, Y do corte, W a partir do corte, H a partir do corte, x, y, w, h. 
 
     context.drawImage(fillEffectBoxTop, 1772 * fillEffectTotal,0, 1772, 265, canvas.width * 0.5 - 1772*0.212, 0 , 1772*0.5, 265*0.5);
 
@@ -566,16 +575,6 @@ function drawCodeBar(){
   }
   context.font = "normal 24px Sauber";
   context.fillStyle = "white";
-
-  // if(CurrentStatus == Game_Status.TIMEBEFOREEND){
-  //   endAlpha -= deltaTime * 1;
-  //   if(endAlpha <= 0){
-  //     endAlpha = 1;
-  //   }
-  //   context.fillStyle = "rgba(255,255,255,"+endAlpha+")";
-  // }else{
-  //   context.fillStyle = "white";
-  // }
 
 
   typeBarAlpha -= deltaTime;
@@ -792,8 +791,10 @@ document.addEventListener('keydown', function(event) {
     if(event.ctrlKey && event.shiftKey && event.key === 'L'){
       if(timer.pause){
         timer.continueTimer()
+        Howler.mute(false)
       }else{
         timer.pauseTimer()
+        Howler.mute(true)
       }
     }
   }
@@ -1000,6 +1001,7 @@ function setGameStatus(newGameStatus){
       // sfx.endMusic.play()
       sfx.confettiSound.play()
       sfx.aplauseSound.loop(false)
+      // saveAsImage();
       break;
     case Game_Status.TIMEBEFOREEND:
       endTimer = 2.5;
@@ -1174,3 +1176,15 @@ function createEndParticles(){
     endParticles[endParticles.length-1].setSpeed((Math.random() * 2 - 1) * 15, -50 * Math.random()*5+5)
   }
 }
+
+
+  function saveAsImage(){
+    const image = canvas.toDataURL("image/png");
+    // Create a temporary download link
+    const link = document.createElement('a');
+    link.download = 'hacked-dyreparken.png';
+    link.href = image;
+    
+    // Trigger the download
+    link.click();
+  }

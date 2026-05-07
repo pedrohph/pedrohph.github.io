@@ -63,7 +63,8 @@ const sfx = {
         src:['assets/sfx/end-music.mp3']
     }),
     confettiSound: new Howl({
-        src:['assets/sfx/confetti_sound.mp3']
+        src:['assets/sfx/confetti_sound.mp3'],
+        volume: 1.75
     })
     
 }

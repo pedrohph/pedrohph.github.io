@@ -132,7 +132,7 @@ setup();
 function setup() {
   sfx.introSound.play()
 
-  console.log("Version 0.0.5")
+  console.log("Version 0.0.6")
   // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720

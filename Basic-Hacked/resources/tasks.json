@@ -23,7 +23,7 @@
         "Tittle_line_2": "OVER "
     },{
         "Task_type": 2,
-        "Goal": ["KRYPTERING"],
+        "Goal": ["SCRIFO"],
         "Tittle_line_1": "FINN KONVOLUTT G",
         "Tittle_line_2": ""
     },{
@@ -32,7 +32,7 @@
         "Tittle_line_2": "UNDER "
     },{
         "Task_type": 2,
-        "Goal": ["SCRIFO"],
+        "Goal": ["PC"],
         "Tittle_line_1": "FINN KONVOLUTT A",
         "Tittle_line_2": ""
     },{
@@ -41,7 +41,7 @@
         "Tittle_line_2": "OVER "
     },{
         "Task_type": 2,
-        "Goal": ["TROJANER"],
+        "Goal": ["BRANNMUR"],
         "Tittle_line_1": "FINN KONVOLUTT H",
         "Tittle_line_2": ""
     },{
@@ -59,7 +59,7 @@
         "Tittle_line_2": "OVER "
     },{
         "Task_type": 2,
-        "Goal": ["BRANNMUR"],
+        "Goal": ["TROJANER"],
         "Tittle_line_1": "FINN KONVOLUTT D",
         "Tittle_line_2": ""
     },{

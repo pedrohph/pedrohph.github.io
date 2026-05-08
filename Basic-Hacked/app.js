@@ -132,7 +132,7 @@ setup();
 function setup() {
   sfx.introSound.play()
 
-  console.log("Version 0.0.6")
+  console.log("Version 0.0.7")
   // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -550,8 +550,8 @@ function drawEndingScreen(){
   context.font = "normal 30px Impact";
   context.fillText("GRATULERER DERE FANT KRYPTERINGSKODEN!".toUpperCase(), canvas.width/2, 80, 1500*0.5)
 
-  context.font = "normal 25px Impact";
- context.fillText("HACKED".toUpperCase(), canvas.width/2, canvas.height - 50)
+//   context.font = "normal 25px Impact";
+//  context.fillText("HACKED".toUpperCase(), canvas.width/2, canvas.height - 50)
 
   context.fillStyle = "rgb(0,255,0)";
   context.textAlign = "center";
@@ -986,8 +986,8 @@ function setGameStatus(newGameStatus){
       halfHourAlarm = 1800;
       sfx.music.stop()
      
-      startIntroVideo()
-      // setGameStatus(Game_Status.PLAYING)
+      // startIntroVideo()
+      setGameStatus(Game_Status.PLAYING)
       // setGameStatus(Game_Status.ENDVIDEO)
       break;
     case Game_Status.ENDVIDEO:

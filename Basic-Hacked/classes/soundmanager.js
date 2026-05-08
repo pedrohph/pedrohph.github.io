@@ -51,7 +51,7 @@ const sfx = {
     }),
     clockSound: new Howl({
         src:['assets/sfx/countdownbothversionsofhacked.mp3'],
-        rate: 0.87
+        rate: 1.1
     }),
     alarm5930: new Howl({
         src:['assets/sfx/alarm-59-30.mp3'],

@@ -67,11 +67,18 @@ let centerImageTiger;
 
 let boxCenter;
 let textBoxTop;
+let glowBoxTop;
+let fillEffectBoxTop;
 let textBoxBottom;
 let textBoxLeft;
 let textBoxRightTop;
 let textBoxRightBottom;
 let inputBox;
+
+let glowBoxAlpha = 0;
+let growingAlpha = true;
+let fillEffectTotal = 0.94;
+let firstFillEffect= true;
 
 let specialMessageBottomBar = ""
 let specialMessageTimer = 0;
@@ -121,7 +128,7 @@ function setup() {
   sfx.natureSound.play()
   sfx.tigerSound.play()
 
-  console.log("Version 0.0.18")
+  console.log("Version 0.0.19")
   // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -169,7 +176,7 @@ function update(){
 
 
   if(CurrentStatus == Game_Status.PLAYING){
-    if(tasks[current_task].Task_type == 2 && specialMessageTimer <= 0){
+     if(tasks[current_task].Task_type == 2 && specialMessageTimer <= 0 && !timer.pause){
       inputBox.focus();
     }else{ 
       inputBox.blur();
@@ -200,7 +207,9 @@ function update(){
     lionTimer -= deltaTime;
   }
 
-  getHigherAndLower()
+  if(!timer.pause){
+    getHigherAndLower()
+  }
 
   drawBackground()
   drawGoalImages()
@@ -300,6 +309,12 @@ function loadBoxes(){
 
   textBoxTop = new Image()
   textBoxTop.src = "assets/images/UI textbox top.png"
+
+  glowBoxTop = new Image()
+  glowBoxTop.src = "assets/images/UI_textbox_top_animation_full_box_glow.png"
+
+  fillEffectBoxTop = new Image()
+  fillEffectBoxTop.src = "assets/images/UI_textbox_top_animation_moving_bar.png"
 
   textBoxBottom = new Image()
   textBoxBottom.src = "assets/images/UI textbox bottom.png"
@@ -425,6 +440,36 @@ function drawTextBoxes(){
 
 }
 
+function drawFinalPasswordEffect(){
+  if(fillEffectTotal > 0.0755){
+    fillEffectTotal -= deltaTime * 2.25;
+    if(fillEffectTotal <= 0.075 && firstFillEffect){
+      fillEffectTotal = 0.94;
+      firstFillEffect = false;
+    }else if(fillEffectTotal <= 0.075){
+      fillEffectTotal = 0.075;
+    }
+
+    //X do corte, Y do corte, W a partir do corte, H a partir do corte, x, y, w, h. 
+
+    context.drawImage(fillEffectBoxTop, 1772 * fillEffectTotal,0, 1772, 265, canvas.width * 0.5 - 1772*0.212, 0 , 1772*0.5, 265*0.5);
+
+    return;
+  }
+  
+  if(growingAlpha){
+    glowBoxAlpha += deltaTime * 1.75;
+  }else{
+    glowBoxAlpha -= deltaTime * 2.75;
+    if(glowBoxAlpha <= 0){
+      glowBoxAlpha = 0;
+    }
+  }
+  context.globalAlpha = glowBoxAlpha;
+  context.drawImage(glowBoxTop, canvas.width * 0.5 - 1772*0.25, 0 , 1772*0.5, 265*0.5);
+  context.globalAlpha = 1
+}
+
 function drawPulseValues(){
   context.fillStyle = "rgb(0,255,0)";
   context.textAlign = "center";
@@ -496,6 +541,10 @@ function drawCodeBar(){
 
   typeBarAlpha -= deltaTime;
     context.fillText(fullCode.toUpperCase(), canvas.width/2, 80, 1500*0.5)
+
+  if(CurrentStatus == Game_Status.TIMEBEFOREEND){
+    drawFinalPasswordEffect();
+  }
 }
 
 function drawInputBarText(){
@@ -698,6 +747,16 @@ document.addEventListener('keydown', function(event) {
         completePulseTask()
       }
     }
+
+    if(event.ctrlKey && event.shiftKey && event.key === 'L'){
+      if(timer.pause){
+        timer.continueTimer()
+        Howler.mute(false)
+      }else{
+        timer.pauseTimer()
+        Howler.mute(true)
+      }
+    }
   }
   if(CurrentStatus == Game_Status.BEFORESTART){
     if(event.ctrlKey && event.shiftKey && event.key === 'E'){
@@ -708,6 +767,9 @@ document.addEventListener('keydown', function(event) {
 });
 
 function handleEnter(e) {
+   if(timer.pause){
+    return;
+  }
   if(tasks[current_task].Task_type != 2){
     return;
   }
@@ -898,7 +960,8 @@ function setGameStatus(newGameStatus){
       sfx.aplauseSound.loop(false)
       break;
     case Game_Status.TIMEBEFOREEND:
-      endTimer = 2;
+      endTimer = 2.5;
+      timer.pauseTimer();
       break;
   }
 }

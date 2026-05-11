@@ -124,6 +124,15 @@
     left: 0;
   }
 
+   .webcam video{
+    position: absolute;
+    width: 50dvw;
+    height: 50dvh;
+    top: 0;
+    left: 0;
+  }
+
+
    /* #End-Video{
     position: absolute;
     width: 100dvw;

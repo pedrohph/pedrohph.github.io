@@ -120,15 +120,20 @@ let alarm59 = -1;
 let alarm56 = -1;
 let halfHourAlarm = 1800;
 
+let isScreenshotDone = false;
+const videoElement = document.getElementById('webcam');
+let stream;
+let webcamImage;
 
 let endParticles = []
 setup();
 
 function setup() {
+
   sfx.natureSound.play()
   sfx.tigerSound.play()
 
-  console.log("Version 0.0.19")
+  console.log("Version 0.0.20")
   // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -138,6 +143,7 @@ function setup() {
   document.body.appendChild(inputBox);
 
   loadBoxes()
+  initWebcam();
   update();
   tasks = taskReader.getTasks();
 
@@ -224,6 +230,7 @@ function update(){
   console.log("Total devices connected: "+devicesConnected)
 
   checkObjective()  
+
 }
 
 function getHigherAndLower(){
@@ -392,10 +399,13 @@ function drawGoalImages(){
 
   if(CurrentStatus == Game_Status.ONBOARDING){
     context.drawImage(centerImageTiger, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
+    // context.drawImage(webcamImage, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
     //drawOnboardingScreen()
 
   }else if(CurrentStatus == Game_Status.ENDSCREEN){
-    context.drawImage(centerImageTiger, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
+    // context.drawImage(centerImageTiger, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
+    context.drawImage(webcamImage, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
+
     drawUsedTime();
     drawEndingScreen();
     //Draw Status Screen
@@ -421,6 +431,10 @@ function drawGoalImages(){
     });
     if(allDead && sfx.endMusic.playing()){
       endParticles.length = 0;
+      if(!isScreenshotDone){
+        isScreenshotDone = true;
+        saveAsImage()
+      }
       createEndParticles();
       sfx.confettiSound.play()
 
@@ -944,6 +958,7 @@ function setGameStatus(newGameStatus){
       sfx.natureSound.stop()
       sfx.tigerSound.stop()
       startIntroVideo()
+      takePhotoFromWebCam()
       // setGameStatus(Game_Status.PLAYING)
       // setGameStatus(Game_Status.ENDVIDEO)
       break;
@@ -1131,4 +1146,42 @@ function createEndParticles(){
     // endParticles[endParticles.length-1].setSpeed((Math.random() * 2 - 1) * 15, 20 * Math.random()*5+5)
     endParticles[endParticles.length-1].setSpeed((Math.random() * 2 - 1) * 15, -50 * Math.random()*5+5)
   }
+}
+
+async function initWebcam() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    videoElement.srcObject = stream;
+  } catch (err) {
+    console.error("Error accessing webcam: ", err);
+  }
+}
+
+function takePhotoFromWebCam(){
+  context.drawImage(videoElement, 0, 0, canvas.width, canvas.height)
+  webcamImage = new Image()
+  webcamImage.src = canvas.toDataURL("image/png");
+  
+  
+   const tracks = stream.getTracks();
+    
+    // Stop each track to release the device
+    tracks.forEach(track => {
+      track.stop();
+    });
+  // // Create a temporary download link
+  // const link = document.createElement('a');
+  // link.download = 'hacked-dyreparken.png';
+  // link.href = image;
+}
+
+function saveAsImage(){
+  const image = canvas.toDataURL("image/png");
+  // Create a temporary download link
+  const link = document.createElement('a');
+  link.download = 'hacked-dyreparken.png';
+  link.href = image;
+  
+  // Trigger the download
+  link.click();
 }

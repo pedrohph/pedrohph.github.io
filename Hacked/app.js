@@ -125,6 +125,12 @@ const videoElement = document.getElementById('webcam');
 let stream;
 let webcamImage;
 
+
+let currentSize = 10;
+let currentCountValue = 3;
+let takingPhoto = false;
+
+
 let endParticles = []
 setup();
 
@@ -133,7 +139,7 @@ function setup() {
   sfx.natureSound.play()
   sfx.tigerSound.play()
 
-  console.log("Version 0.0.20")
+  console.log("Version 0.0.21")
   // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -174,7 +180,6 @@ function update(){
   if(CurrentStatus == Game_Status.ENDVIDEO){
 
     if(endVideo.currentTime >= 5 && !sfx.endMusic.playing()){
-      console.log("Disparou")
       sfx.aplauseSound.play()
       sfx.endMusic.play();
     }
@@ -398,13 +403,25 @@ function drawGoalImages(){
   }
 
   if(CurrentStatus == Game_Status.ONBOARDING){
-    context.drawImage(centerImageTiger, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
-    // context.drawImage(webcamImage, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
-    //drawOnboardingScreen()
+    if(webcamImage != null){
+      context.drawImage(centerImageTiger, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
+    }else{
+      context.drawImage(videoElement, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
+
+    }
+
+    if(takingPhoto){
+      drawPhotoCounter()
+    }
+
 
   }else if(CurrentStatus == Game_Status.ENDSCREEN){
-    // context.drawImage(centerImageTiger, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
-    context.drawImage(webcamImage, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
+    if(webcamImage != undefined){
+      context.drawImage(webcamImage, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
+
+    }else{
+      context.drawImage(centerImageTiger, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
+    }
 
     drawUsedTime();
     drawEndingScreen();
@@ -755,6 +772,13 @@ document.addEventListener('keydown', function(event) {
     }
   }
 
+  if(CurrentStatus == Game_Status.ONBOARDING){
+    if(event.shiftKey && event.key === '!' && webcamImage == undefined){
+      takingPhoto = true;
+      drawPhotoCounter()
+    }
+  }
+
   if(CurrentStatus == Game_Status.PLAYING){
     if(event.ctrlKey && event.shiftKey && event.key === 'E'){
       if(tasks[current_task].Task_type < 2){
@@ -958,7 +982,8 @@ function setGameStatus(newGameStatus){
       sfx.natureSound.stop()
       sfx.tigerSound.stop()
       startIntroVideo()
-      takePhotoFromWebCam()
+      stopCamera()
+     // takePhotoFromWebCam()
       // setGameStatus(Game_Status.PLAYING)
       // setGameStatus(Game_Status.ENDVIDEO)
       break;
@@ -1162,17 +1187,16 @@ function takePhotoFromWebCam(){
   webcamImage = new Image()
   webcamImage.src = canvas.toDataURL("image/png");
   
-  
+  stopCamera()
+}
+
+function stopCamera(){
    const tracks = stream.getTracks();
     
     // Stop each track to release the device
     tracks.forEach(track => {
       track.stop();
     });
-  // // Create a temporary download link
-  // const link = document.createElement('a');
-  // link.download = 'hacked-dyreparken.png';
-  // link.href = image;
 }
 
 function saveAsImage(){
@@ -1185,3 +1209,29 @@ function saveAsImage(){
   // Trigger the download
   link.click();
 }
+
+function drawPhotoCounter(){
+  if(currentCountValue <= 0){
+    return;
+  }
+  currentSize += deltaTime * 500
+    context.fillStyle = "rgba(255,255,255, "+currentSize/500 +")";
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+
+      context.font = "normal "+currentSize+"px Alarm_Clock";
+
+      context.fillText(currentCountValue,  canvas.width/2, canvas.height/2 + 35);
+
+      if(currentSize > 500){
+        currentSize = 0;
+        currentCountValue-= 1;
+
+        if(currentCountValue == 0){
+          takePhotoFromWebCam()
+          takingPhoto = false;
+        }
+      }
+      context.textBaseline = "alphabetic";
+}
+

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="node_modules/howler/dist/howler.js"></script>
+
+    <title>Hacked</title>
+</head>
+<body>
+    <video playsinline disablepictureinpicture src="assets/videos/HACKED_2026_Dark_Intro.mp4" id="Intro-Video" ></video>
+    <video playsinline disablepictureinpicture src="assets/videos/HACKED_2026_End.MP4" id="End-Video" ></video>
+    <video playsinline disablepictureinpicture src="assets/videos/countdown-video.mp4" id="Countdown-Video" ></video>
+   
+    <video id="webcam" autoplay playsinline></video>
+
+   
+    <canvas id="main-canvas"></canvas>
+    <script type="module" src="app.js"></script>
+
+
+    <container id="admin-tool-container" class="admin-tool hidden">
+        <div class="header"><h1>Admin Tool</h1></div>
+
+        <div class="header"><h2>Set new game time: (Minutes)</h2></div>
+        <input id="new-game-time" type="number" value = 60>
+   
+        <div class="header"><h2>Set new pulse limit:</h2></div>
+        Under: <input id="under-pulse-value" class="pulse-input" type="number" value = 82>
+        Over: <input id="over-pulse-value" class="pulse-input" type="number" value = 120>
+
+        <div class="header"><h2>Set new Password:</h2></div>
+        A- <input class="password-input" id="A" data-value="a" type="text" value = "11"></br>
+        B- <input class="password-input" id="B" type="text" value = "Sjiraff"></br>
+        C- <input class="password-input" id="C" type="text" value = "KARDEMOMMEBY"></br>
+        D- <input class="password-input" id="D" type="text" value = "KRUTT"></br>
+        E- <input class="password-input" id="E" type="text" value = "112111"></br>
+        F- <input class="password-input" id="F" type="text" value = "Ape"></br>
+        G- <input class="password-input" id="G" type="text" value = "BRUMLEMANN"></br>
+        H- <input class="password-input" id="H" type="text" value = "KNELER"></br></br>
+
+        <button class="red-button" id="button-cancel-admin-tool">CANCEL</button>
+        <button class="green-button" id="button-confirm-admin-tool">CONFIRM</button>
+    </container>
+</body>
+</html>

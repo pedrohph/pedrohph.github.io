@@ -122,6 +122,14 @@ let alarm59 = -1;
 let alarm56 = -1;
 let halfHourAlarm = 1800;
 
+const videoElement = document.getElementById('webcam');
+let stream;
+let webcamImage;
+
+let currentSize = 10;
+let currentCountValue = 3;
+let takingPhoto = false;
+
 let movingUnImage;
 let movingUn;
 
@@ -132,7 +140,7 @@ setup();
 function setup() {
   sfx.introSound.play()
 
-  console.log("Version 0.0.7a")
+  console.log("Version 0.0.8")
   // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -142,6 +150,7 @@ function setup() {
   document.body.appendChild(inputBox);
 
   loadBoxes()
+  initWebcam();
   update();
   tasks = taskReader.getTasks();
 
@@ -411,7 +420,17 @@ function drawGoalImages(){
     context.rect(canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385); // Add a rectangle to the current path
     context.fillStyle = "black"
     context.fill(); 
-    context.drawImage(centerImageTiger, canvas.width * 0.5 - 975*0.19, canvas.height * 0.5 -  970*0.19 , 940*0.385, 940*0.385);
+
+    if(webcamImage != null){
+      context.drawImage(centerImageTiger, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
+    }else{
+      context.drawImage(videoElement, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
+
+    }
+
+    if(takingPhoto){
+      drawPhotoCounter()
+    }
     //drawOnboardingScreen()
 
   }else if(CurrentStatus == Game_Status.ENDSCREEN){
@@ -421,7 +440,12 @@ function drawGoalImages(){
     context.fillStyle = "black"
     context.fill();
 
-    context.drawImage(centerImageTiger, canvas.width * 0.5 - 975*0.19, canvas.height * 0.5 -  970*0.19 , 940*0.385, 940*0.385);
+    if(webcamImage != undefined){
+      context.drawImage(webcamImage, canvas.width * 0.5 - 981*0.19, canvas.height * 0.5 -  970*0.19 , 981*0.385, 970*0.385);
+    }else{
+          context.drawImage(centerImageTiger, canvas.width * 0.5 - 975*0.19, canvas.height * 0.5 -  970*0.19 , 940*0.385, 940*0.385);
+    }
+
     drawUsedTime();
     drawEndingScreen();
     //Draw Status Screen
@@ -439,7 +463,10 @@ function drawGoalImages(){
 
   if(CurrentStatus == Game_Status.ENDSCREEN){
     let allDead = true;
-    movingUn.draw()
+
+    if(webcamImage == undefined){
+      movingUn.draw()
+    }
 
     endParticles.forEach(particle => {
       if(!particle.dead){
@@ -778,6 +805,13 @@ document.addEventListener('keydown', function(event) {
     
     if(tasks.length <= 0){
       tasks = taskReader.getTasks();
+    }
+  }
+
+   if(CurrentStatus == Game_Status.ONBOARDING){
+    if(event.shiftKey && event.key === '!' && webcamImage == undefined){
+      takingPhoto = true;
+      drawPhotoCounter()
     }
   }
 
@@ -1177,14 +1211,66 @@ function createEndParticles(){
   }
 }
 
+async function initWebcam() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    videoElement.srcObject = stream;
+  } catch (err) {
+    console.error("Error accessing webcam: ", err);
+  }
+}
+
+function takePhotoFromWebCam(){
+  context.drawImage(videoElement, 0, 0, canvas.width, canvas.height)
+  webcamImage = new Image()
+  webcamImage.src = canvas.toDataURL("image/png");
+  
+  stopCamera()
+}
+
+function stopCamera(){
+   const tracks = stream.getTracks();
+    
+    // Stop each track to release the device
+    tracks.forEach(track => {
+      track.stop();
+    });
+}
 
   function saveAsImage(){
     const image = canvas.toDataURL("image/png");
     // Create a temporary download link
     const link = document.createElement('a');
-    link.download = 'hacked-dyreparken.png';
+    link.download = 'hacked_diploma.png';
     link.href = image;
     
     // Trigger the download
     link.click();
   }
+
+  
+function drawPhotoCounter(){
+  if(currentCountValue <= 0){
+    return;
+  }
+  currentSize += deltaTime * 500
+    context.fillStyle = "rgba(255,255,255, "+currentSize/500 +")";
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+
+      context.font = "normal "+currentSize+"px Alarm_Clock";
+
+      context.fillText(currentCountValue,  canvas.width/2, canvas.height/2 + 35);
+
+      if(currentSize > 500){
+        currentSize = 0;
+        currentCountValue-= 1;
+
+        if(currentCountValue == 0){
+          takePhotoFromWebCam()
+          takingPhoto = false;
+        }
+      }
+      context.textBaseline = "alphabetic";
+}
+

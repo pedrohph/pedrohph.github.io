@@ -1,6 +1,7 @@
 {
     "tasks":[{
         "Task_type": 0,
+        "Goal": 120,
         "Tittle_line_1": "FÅ LAGPULS",
         "Tittle_line_2": "OVER "
     },{
@@ -10,6 +11,7 @@
         "Tittle_line_2": ""
     },{
         "Task_type": 1,
+        "Goal": 80,
         "Tittle_line_1": "FÅ LAGPULS",
         "Tittle_line_2": "UNDER "
     },{
@@ -19,6 +21,7 @@
         "Tittle_line_2": ""
     },{
         "Task_type": 0,
+        "Goal": 115,
         "Tittle_line_1": "FÅ LAGPULS",
         "Tittle_line_2": "OVER "
     },{
@@ -28,6 +31,7 @@
         "Tittle_line_2": ""
     },{
         "Task_type": 1,
+        "Goal": 78,
         "Tittle_line_1": "FÅ LAGPULS",
         "Tittle_line_2": "UNDER "
     },{
@@ -37,6 +41,7 @@
         "Tittle_line_2": ""
     },{
         "Task_type": 0,
+        "Goal": 120,
         "Tittle_line_1": "FÅ LAGPULS",
         "Tittle_line_2": "OVER "
     },{
@@ -46,6 +51,7 @@
         "Tittle_line_2": ""
     },{
         "Task_type": 1,
+        "Goal": 82,
         "Tittle_line_1": "FÅ LAGPULS",
         "Tittle_line_2": "UNDER "
     },{
@@ -55,6 +61,7 @@
         "Tittle_line_2": ""
     },{
         "Task_type": 0,
+        "Goal": 125,
         "Tittle_line_1": "FÅ LAGPULS",
         "Tittle_line_2": "OVER "
     },{
@@ -64,6 +71,7 @@
         "Tittle_line_2": ""
     },{
         "Task_type": 1,
+        "Goal": 79,
         "Tittle_line_1": "FÅ LAGPULS",
         "Tittle_line_2": "UNDER "
     },{

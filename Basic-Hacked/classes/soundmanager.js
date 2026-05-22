@@ -65,6 +65,10 @@ const sfx = {
     confettiSound: new Howl({
         src:['assets/sfx/confetti_sound.mp3'],
         volume: 1.75
+    }),
+    cheerEffect: new Howl({
+        src:['assets/SFX/smallwincheer.mp3'],
+        volume: 4
     })
     
 }

@@ -67,7 +67,7 @@ const sfx = {
         volume: 1.75
     }),
     cheerEffect: new Howl({
-        src:['assets/SFX/smallwincheer.mp3'],
+        src:['assets/sfx/smallwincheer.mp3'],
         volume: 4
     })
     

@@ -139,7 +139,7 @@ function setup() {
   sfx.natureSound.play()
   sfx.tigerSound.play()
 
-  console.log("Version 0.0.21")
+  console.log("Version 0.0.22")
   // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -829,6 +829,8 @@ function completeQuest(rightPassword){
     specialMessageTimer = 2;
 
     sfx.correctPassword.play()
+    sfx.cheerEffect.play()
+
 
     current_task ++;
 
@@ -879,6 +881,7 @@ function completePulseTask(){
 
       sfx.reachPulseLevel.play()
       sfx.correctPassword.play()
+      sfx.cheerEffect.play()
 }
 
 function GetBluetoothPermission(){

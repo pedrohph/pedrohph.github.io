@@ -32,7 +32,7 @@ let gameAverageBPM = []
 
 let timerToCheck = 30;
 
-let underTasksValue = 82;
+let underTasksValue = 80;
 let overTasksValue = 120;
 
 let current_task = 0;
@@ -74,6 +74,12 @@ let textBoxLeft;
 let textBoxRightTop;
 let textBoxRightBottom;
 let inputBox;
+
+let boxCenterGreenEffect;
+let textBoxBottomGreen;
+
+let upGreenAlphaEffect = true;
+let greenAlphaEffect = 0;
 
 let glowBoxAlpha = 0;
 let growingAlpha = true;
@@ -139,7 +145,7 @@ function setup() {
   sfx.natureSound.play()
   sfx.tigerSound.play()
 
-  console.log("Version 0.0.22")
+  console.log("Version 0.0.23")
   // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -305,11 +311,11 @@ function checkObjective(){
   }
 
   if(tasks[current_task].Task_type == 0){
-     if(averageBPM >= overTasksValue && averageBPM > 0){
+    if(averageBPM >= tasks[current_task].Goal && averageBPM > 0){
       completePulseTask()
     }
   }else if(tasks[current_task].Task_type == 1){
-    if(averageBPM <= underTasksValue && averageBPM > 0){
+    if(averageBPM <= tasks[current_task].Goal && averageBPM > 0){
       completePulseTask();
     }
   }
@@ -318,6 +324,9 @@ function checkObjective(){
 function loadBoxes(){
   boxCenter = new Image()
   boxCenter.src = "assets/images/UI box center_blank.png"
+
+  boxCenterGreenEffect = new Image()
+  boxCenterGreenEffect.src = "assets/images/UI box center_green_effect.png"
 
   textBoxTop = new Image()
   textBoxTop.src = "assets/images/UI textbox top.png"
@@ -330,6 +339,9 @@ function loadBoxes(){
 
   textBoxBottom = new Image()
   textBoxBottom.src = "assets/images/UI textbox bottom.png"
+
+  textBoxBottomGreen = new Image()
+  textBoxBottomGreen.src = "assets/images/UI textbox bottom_green.png"
 
   textBoxLeft = new Image()
   textBoxLeft.src = "assets/images/UI box left.png"
@@ -437,6 +449,9 @@ function drawGoalImages(){
   }
   context.drawImage(boxCenter, canvas.width * 0.5 - 981*0.25, canvas.height * 0.5 -  970*0.25 , 981*0.5, 970*0.5);
 
+  context.globalAlpha = greenAlphaEffect;
+  context.drawImage(boxCenterGreenEffect, canvas.width * 0.5 - 981*0.25, canvas.height * 0.5 -  970*0.25 , 981*0.5, 970*0.5);
+  context.globalAlpha = 1;
 
   if(CurrentStatus == Game_Status.ENDSCREEN){
   let allDead = true;
@@ -469,6 +484,10 @@ function drawTextBoxes(){
   context.drawImage(textBoxRightTop, canvas.width - 935 * 0.5, canvas.height*0.5 - 450*0.5 , 844*0.5, 450*0.5);
   context.drawImage(textBoxRightBottom, canvas.width - 935 * 0.5, canvas.height*0.5, 935*0.5, 464*0.5);
 
+
+  context.globalAlpha = greenAlphaEffect;
+  context.drawImage(textBoxBottomGreen, canvas.width * 0.5 - 1145*0.25, canvas.height - 237*0.5 , 1145*0.5, 237*0.5);
+  context.globalAlpha = 1;
 }
 
 function drawFinalPasswordEffect(){
@@ -595,11 +614,31 @@ function drawInputBarText(){
       specialMessageTimer -= deltaTime 
       alphaFeil -= deltaTime * 1.25;
 
+      if(specialMessageBottomBar.toUpperCase() == "RIKTIG"){
+        if(upGreenAlphaEffect){
+          greenAlphaEffect += deltaTime * 1.75;
+        }else{
+          greenAlphaEffect -= deltaTime * 1.75;
+        }
+
+        
+        if(greenAlphaEffect > 1){
+          greenAlphaEffect = 1;
+          upGreenAlphaEffect = false;
+        }else if(greenAlphaEffect < 0){
+          greenAlphaEffect = 0;
+          upGreenAlphaEffect = true;
+        }
+      }
+
+
       if(alphaFeil <= 0){
         alphaFeil = 1;
       }
       if(specialMessageTimer <= 0){
-        specialMessageTimer = 0;
+        specialMessageTimer = 0;  
+        greenAlphaEffect = 0;
+        upGreenAlphaEffect = true;
 
         specialMessageBottomBar = "";
         sfx.incorrectPassword.stop()
@@ -727,10 +766,10 @@ function drawTextOnCenter(){
   current_text_line1 = tasks[current_task].Tittle_line_1;
   current_text_line2 = tasks[current_task].Tittle_line_2;
 
-  if(tasks[current_task].Task_type == 0){
-    current_text_line2 += overTasksValue
+ if(tasks[current_task].Task_type == 0){
+    current_text_line2 += tasks[current_task].Goal
   }else if(tasks[current_task].Task_type == 1){
-    current_text_line2 += underTasksValue
+    current_text_line2 += tasks[current_task].Goal
 
   }
 

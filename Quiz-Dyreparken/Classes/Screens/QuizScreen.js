@@ -9,6 +9,9 @@ class QuizScreen{
     // backgroundImage;
 
     topBarImage;
+    gameMascotImage;
+    gameNameLogo;
+    
     frameImg;
     mainQuestImg = [,,,,];
     circleImg;
@@ -24,8 +27,9 @@ class QuizScreen{
     totalClicks = 0;
 
     questionMsg = ["Hvilket år ble historien om Klatremus og de andre dyrene i Hakkebakkeskogen utgitt som bok?", "Hvor mange forskjellige dyrearter er det i Dyreparken Kristiansand?", "Sjimpansen Julius ble født andre juledag i Dyreparken Kristiansand, men i hvilket år?", "To av røverne i Kardemommeby heter Jesper og Kasper, men hva heter den tredje?", "Hva er det eneste Kaptein Sabeltann er redd for?"]
-    answersMsg = [["1947", "1953", "1962", "1970"], ["Ca 85","Ca 70", "Over 100", "Ca 50"], ["1977","1979","1981","1985"],["Jonny","Jostein","Jonatan","Jarand"], ["Andre pirater","Mørket", "Store bølger", "Grusomme Gabriel"]]
+    answersMsg = [["1953", "1947", "1962", "1970"], ["Over 100","Ca 85","Ca 70", "Ca 50"], ["1979","1977","1981","1985"],["Jonatan", "Jonny","Jostein","Jarand"], ["Grusomme Gabriel","Andre pirater","Mørket", "Store bølger"]]
 
+    tryAgainMsg = "Feil, men du får en sjanse til🤞🏻"
 
     constructor(){
         this.canvas = document.getElementById("main-canvas")
@@ -46,15 +50,15 @@ class QuizScreen{
     draw(){
         if(this.topBarImage != undefined){
             this.context.drawImage(this.topBarImage, this.canvas.width /2 - 680/2, 30, 680, 170)
+            this.context.drawImage(this.gameMascotImage, this.canvas.width /2 - 75/2, 92, 75, 100)
+            this.context.drawImage(this.gameNameLogo, this.canvas.width /2 - 90, 0, 180, 110)
 
-             // this.context.font = "normal "+this.msgSize+"px TW_Cen"
-            this.context.font = "normal 35px Jost"
-            this.context.textAlign = "center"
+            this.context.font = "normal 50px Jost"
+            this.context.textAlign = "right"
 
             this.context.fillStyle  = "rgba(255,255,255,1)"
 
-            // this.context.strokeText(this.msg, this.x + this.width * this.butonSize.width/2, yFirstText)
-            this.context.fillText("QUIZ", this.canvas.width/2, 155)
+            this.context.fillText(sessionStorage.getItem("TotalQuestionsAnswered")+"/5", this.canvas.width * 0.92, 110)
         }
 
         if(this.backButton != undefined){
@@ -71,6 +75,10 @@ class QuizScreen{
 
       this.textWrapper.wrapText(this.questionMsg[this.currentQuest], this.canvas.width/2, 240, 600, 35)
 
+
+      if(this.totalClicks == 1){
+        this.textWrapper.wrapText(this.tryAgainMsg, this.canvas.width/2, this.canvas.height * 0.965, 600, 35)
+      }
         // if(this.frameImg != undefined){
         //     this.context.drawImage(this.frameImg, this.canvas.width * 0.5 - 300, this.canvas.height * 0.255, 600, 600)
         // }
@@ -132,14 +140,56 @@ class QuizScreen{
                 if(i == this.rightAnswerId){
                     this.answerButton[i].correctButtonAnimation();
                     this.totalClicks = 2;
+
+                    this.changeStorage(true)
+                    
                 }else{
                     this.answerButton[i].wrongButtonAnimation();
                     this.totalClicks += 1;
+
+                    this.changeStorage(false)
 
                 }
             }
         }
 
+       
+    }
+
+    changeStorage(correct){
+        let results = sessionStorage.getItem("QuestionResults");
+        let splittedResults = results.split(",");
+
+        let currentQuestionID = parseInt(sessionStorage.getItem("CurrentQuestion"))
+        let totalCorrectAnswers = sessionStorage.getItem("TotalQuestionsAnswered")
+        let TotalQuestionsAnswered = parseInt(sessionStorage.getItem("TotalQuestionsAnswered"))
+
+        if(correct){
+            splittedResults[currentQuestionID] = 1
+            sessionStorage.setItem("TotalQuestionsAnswered", totalCorrectAnswers+1)
+        }else{
+            splittedResults[currentQuestionID] -= 1;
+        } 
+
+        if(splittedResults[currentQuestionID] == -2 || splittedResults[currentQuestionID] == 1){
+            currentQuestionID += 1;
+            TotalQuestionsAnswered += 1;
+
+             sessionStorage.setItem("TotalQuestionsAnswered", TotalQuestionsAnswered);
+            sessionStorage.setItem("CurrentQuestion", currentQuestionID)
+            sessionStorage.setItem("QuestionResults",splittedResults.toString()); //1 = correct, -1 incorrect but can try again, -2 wrong twice, 0 = not answered
+
+            if(TotalQuestionsAnswered >= 5){
+                this.changeScreenEvent.newScreen = "DiplomaScreen";
+            }else{
+                this.changeScreenEvent.newScreen = "ScanScreen";
+            }
+
+            document.dispatchEvent(this.changeScreenEvent);
+             this.reset();
+        }
+
+        sessionStorage.setItem("QuestionResults",splittedResults.toString()); //1 = correct, -1 incorrect but can try again, -2 wrong twice, 0 = not answered
        
     }
 

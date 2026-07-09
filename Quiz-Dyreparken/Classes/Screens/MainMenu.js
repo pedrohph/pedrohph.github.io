@@ -8,7 +8,6 @@ class MainMenu{
     backgroundImage;
 
     gameLogo;
-    questionMarkLogo;
     frameImg;
     nailImg;
     stringImg;
@@ -40,7 +39,7 @@ class MainMenu{
         //     this.infoButton.draw()
         // }
 
-         if(this.stringImg != undefined){
+        if(this.stringImg != undefined){
             this.context.drawImage(this.stringImg, this.canvas.width * 0.22, this.canvas.height * -0.025, 390, 390)
         }
         if(this.frameImg != undefined){
@@ -50,17 +49,12 @@ class MainMenu{
         if(this.nailImg != undefined){
             this.context.drawImage(this.nailImg, this.canvas.width * 0.35, this.canvas.height * 0.045)
         }
-       
-        this.context.beginPath(); // Start a new path
-        this.context.rect(this.canvas.width*0.27, this.canvas.height*0.185, 325, 410); // Add a rectangle to the current path
-        this.context.fill(); // Render the path
 
         if(this.gameLogo != undefined){
-            this.context.drawImage(this.gameLogo, this.canvas.width * 0.29, this.canvas.height * 0.2, 300, 110)
+            // this.context.drawImage(this.gameLogo, this.canvas.width * 0.29, this.canvas.height * 0.2, 300, 110)
+            this.context.drawImage(this.gameLogo, this.canvas.width*0.27, this.canvas.height*0.185, 325, 410)
         }
-        if(this.questionMarkLogo != undefined){
-            this.context.drawImage(this.questionMarkLogo, this.canvas.width * 0.35, this.canvas.height * 0.31, 200, 210)
-        }
+
     }
 
     addTopButton(buttonImg){
@@ -79,7 +73,7 @@ class MainMenu{
 
     addHTPButton(buttonImg){
         // this.htpButton = new Button(buttonImg, this.canvas.width * 0.35, this.canvas.height * 0.85, 175, 175);
-        this.htpButton = new Button(buttonImg, this.canvas.width * 0.35, this.canvas.height * 0.85, 175, 175);
+        this.htpButton = new Button(buttonImg, this.canvas.width * 0.5, this.canvas.height * 0.95, 355, 210);
 
     }
 
@@ -87,10 +81,11 @@ class MainMenu{
         this.infoButton = new Button(buttonImg, this.canvas.width * 0.65, this.canvas.height * 0.85, 175, 175);
     }
 
-     checkClickedButton(mousePos){
+    checkClickedButton(mousePos){
         
         if(this.playButton.clickButton(mousePos)){
-            this.changeScreenEvent.newScreen = "GameScreen";
+            // this.changeScreenEvent.newScreen = "GameScreen";
+            this.changeScreenEvent.newScreen = "ScanScreen";
             document.dispatchEvent(this.changeScreenEvent);
         }
         

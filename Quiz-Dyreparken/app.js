@@ -1,6 +1,8 @@
+import DiplomaScreen from "./Classes/Screens/DiplomaScreen.js";
 import MainMenu from "./Classes/Screens/MainMenu.js";
+import MapScreen from "./Classes/Screens/MapScreen.js";
+import QRCodeScreen from "./Classes/Screens/QRCodeScreen.js";
 import QuizScreen from "./Classes/Screens/QuizScreen.js";
-// import TextWrapper from "./Classes/TextWrapper.js";
 
 const canvas = document.getElementById("main-canvas")
 const context = canvas.getContext("2d")
@@ -22,35 +24,45 @@ let topRightButtonImg;
 let htpButtonImg;
 let infoButtonImg;
 let backButtonImg;
+let basicButtonImg;
 
 let frameMainMenuImg;
 let frameNailImg;
 let frameStringImg;
 let gameLogo;
-let questionLogo;
+let gameMascot;
+let gameNameLogo;
+let gameMap;
+
 
 let currentScreen;
 let mainMenu = new MainMenu();
 let quizScreen = new QuizScreen();
-
+let mapScreen = new MapScreen();
+let qrCodeScreen = new QRCodeScreen();
+let diplomaScreen = new DiplomaScreen();
 
 setup();
 setScreenSize();
 
 function setup(){
-
     loadMainMenuImages();
     loadBackgroundImages();
     loadButtonImages();
     loadGameHUDImages();
+    loadMapIcons();
     
     
     //Temp
     loadQuestionImg();
 
+    refreshStorages();
+
     createListeners()
     // currentScreen = quizScreen;
+    // currentScreen = mainMenu;
     currentScreen = mainMenu;
+
     update();
 }
 
@@ -81,17 +93,53 @@ function setScreenSize(){
         
     // }
 }
+
+function refreshStorages(){
+    //Set all to local storage
+     let currentDate = new Date().toJSON().slice(0, 10);
+    console.log(currentDate);
+    if(sessionStorage.getItem("TokenDate") == currentDate){
+        
+        console.log("Same day token")
+
+    }else{
+        clearStorate();
+    }
+}
+
+function clearStorate(){
+        let currentDate = new Date().toJSON().slice(0, 10);
+        console.log("Clear storage")
+        sessionStorage.clear()
+
+        sessionStorage.setItem("TokenDate", currentDate)
+        sessionStorage.setItem("QuestionResults","0,0,0,0,0"); //1 = correct, -1 incorrect but can try again, -2 wrong twice, 0 = not answered
+        sessionStorage.setItem("CurrentQuestion",0)
+        sessionStorage.setItem("TotalQuestionsAnswered",0)
+}
+
 function loadMainMenuImages(){
     gameLogo = new Image();
-    gameLogo.src = "Assets/Arts/game_logo.jpeg";
+    gameLogo.src = "Assets/Arts/new_game_logo.png";
     gameLogo.onload = function(){
         mainMenu.gameLogo = gameLogo;
+        diplomaScreen.gameLogo = gameLogo;
+
     }
 
-    questionLogo = new Image();
-    questionLogo.src = "Assets/Arts/question_logo.png";
-    questionLogo.onload = function(){
-        mainMenu.questionMarkLogo = questionLogo;
+    gameNameLogo = new Image();
+    gameNameLogo.src = "Assets/Arts/game_name_logo.png";
+    gameNameLogo.onload = function(){
+        qrCodeScreen.gameNameLogo = gameNameLogo;
+        quizScreen.gameNameLogo = gameNameLogo;
+    }
+
+
+    gameMascot = new Image();
+    gameMascot.src = "Assets/Arts/Game_Mascot.png"
+    gameMascot.onload = function(){
+        quizScreen.gameMascotImage = gameMascot;
+        qrCodeScreen.gameMascotImage = gameMascot;
     }
 
     frameMainMenuImg = new Image();
@@ -99,18 +147,23 @@ function loadMainMenuImages(){
     frameMainMenuImg.onload = function(){
         mainMenu.frameImg = frameMainMenuImg;
         quizScreen.frameImg = frameMainMenuImg;
+        diplomaScreen.frameImg = frameMainMenuImg;
     }
 
     frameNailImg = new Image();
     frameNailImg.src = "Assets/Arts/objects/Art_Frame_Nail.png"
     frameNailImg.onload = function(){
         mainMenu.nailImg = frameNailImg;
+        diplomaScreen.nailImg = frameNailImg;
+
     }
 
     frameStringImg = new Image();
     frameStringImg.src = "Assets/Arts/objects/Art_Frame_String.png"
     frameStringImg.onload = function(){
         mainMenu.stringImg = frameStringImg;
+        diplomaScreen.stringImg = frameStringImg;
+
     }
 }
 
@@ -124,6 +177,27 @@ function loadQuestionImg(){
         }
     }
     
+    let qrCodeImg = new Image();
+    qrCodeImg.src = "Assets/Arts/qr-code.png";
+    qrCodeImg.onload = function(){
+        qrCodeScreen.addQRCodeButton(qrCodeImg)
+    }
+}
+
+
+function loadMapIcons(){
+    gameMap = new Image();
+    gameMap.src = "Assets/Arts/map.jpg"
+    gameMap.onload = function(){
+        mapScreen.mapImg = gameMap;
+        qrCodeScreen.addMapButton(gameMap)
+    }
+
+    basicButtonImg = new Image();
+    basicButtonImg.src = "Assets/Arts/buttons/Button_Menu_Information.png";
+    basicButtonImg.onload = function(){
+        mapScreen.addBasicButton(basicButtonImg);
+    }
 }
 
 function loadGameHUDImages(){
@@ -131,6 +205,7 @@ function loadGameHUDImages(){
     gameTopBarImage.src = "Assets/Arts/objects/Gameplay_Top_Banner.png";
     gameTopBarImage.onload = function(){
         quizScreen.topBarImage = gameTopBarImage;
+        qrCodeScreen.topBarImage = gameTopBarImage;
     }
 
     gameCircle = new Image();
@@ -145,7 +220,7 @@ function loadBackgroundImages(){
     portraitBackground.src = "Assets/Arts/textures/Menu_Background.png";
     portraitBackground.onload = function(){
         mainMenu.backgroundImage = portraitBackground;
-        // console.log("Loaded img top")
+        diplomaScreen.backgroundImage = portraitBackground;
     }
 }
 function loadButtonImages(){
@@ -212,6 +287,8 @@ function loadButtonImages(){
     backButtonImg.src = "Assets/Arts/buttons/Button_Gameplay_Exit_Light.png"
     backButtonImg.onload = function(){
         quizScreen.addBackButton(backButtonImg);
+        mapScreen.addBackButton(backButtonImg);
+        qrCodeScreen.addBackButton(backButtonImg);
     }
 }
 
@@ -252,13 +329,29 @@ function createListeners(){
     console.log(mainMenu)
     document.addEventListener("ChangeScreen", (e) =>{
         if(e.newScreen == "GameScreen"){
-            quizScreen.currentQuest = Math.floor(Math.random() * 5);
-            quizScreen.setButtonsOptions(quizScreen.answersMsg[quizScreen.currentQuest])
-            currentScreen = quizScreen;
+            // let currentQuestion = localStorage.getItem("CurrentQuestion")
+            let currentQuestion = sessionStorage.getItem("CurrentQuestion")
+            if(currentQuestion < 5){
+                // quizScreen.currentQuest = Math.floor(Math.random() * 5);
+                quizScreen.currentQuest = currentQuestion;
+                quizScreen.setButtonsOptions(quizScreen.answersMsg[currentQuestion])
+                currentScreen = quizScreen;
+            }else{
+                diplomaScreen.checkTotalCorrectAnswers()
+                currentScreen = diplomaScreen;
+            }
+          
         }else  if(e.newScreen == "MenuScreen"){
             currentScreen = mainMenu;
-        }else{
-            console.log("????")
+        }else if(e.newScreen == "MapScreen"){
+            currentScreen = mapScreen;
+        }else if(e.newScreen == "ScanScreen"){
+            currentScreen = qrCodeScreen;
+        }else if(e.newScreen == "DiplomaScreen"){
+            diplomaScreen.checkTotalCorrectAnswers()
+            currentScreen = diplomaScreen;
+        }else if(e.newScreen == "HTPScreen"){
+           clearStorate();
         }
     })
 }

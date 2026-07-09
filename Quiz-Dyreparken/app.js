@@ -46,6 +46,7 @@ setup();
 setScreenSize();
 
 function setup(){
+    console.log("Quiz - V.: 0.0.2")
     loadMainMenuImages();
     loadBackgroundImages();
     loadButtonImages();
@@ -59,8 +60,7 @@ function setup(){
     refreshStorages();
 
     createListeners()
-    // currentScreen = quizScreen;
-    // currentScreen = mainMenu;
+
     currentScreen = mainMenu;
 
     update();

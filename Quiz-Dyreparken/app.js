@@ -136,7 +136,7 @@ function loadMainMenuImages(){
 
 
     gameMascot = new Image();
-    gameMascot.src = "Assets/Arts/Game_Mascot.png"
+    gameMascot.src = "Assets/Arts/game_mascot.png"
     gameMascot.onload = function(){
         quizScreen.gameMascotImage = gameMascot;
         qrCodeScreen.gameMascotImage = gameMascot;

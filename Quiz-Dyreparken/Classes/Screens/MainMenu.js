@@ -12,6 +12,7 @@ class MainMenu{
     nailImg;
     stringImg;
 
+    // startImg;
     playButton;
     mapButton;
     htpButton;
@@ -20,6 +21,8 @@ class MainMenu{
     constructor(){
         this.canvas = document.getElementById("main-canvas")
         this.context = this.canvas.getContext("2d")
+
+        this.checkButtonEvent();
     }
 
     draw(){
@@ -57,16 +60,22 @@ class MainMenu{
 
     }
 
-    addTopButton(buttonImg){
+    addTopButton(buttonImg, startImg){
         
         this.playButton = new Button(buttonImg, this.canvas.width/2, this.canvas.height * 0.65, 425, 111);
-        this.playButton.setText("rgba(255, 255, 255, 1)", "START SPILL", 40)
+        // this.playButton.setText("rgba(255, 255, 255, 1)", "START SPILL", 40)
+        this.playButton.setIcon(startImg, 0.5, 0.85)
+        this.playButton.buttonValue = "StartButton";
+        // this.playButton.setIcon(startImg, 1.75, 1.9)
+            // this.context.drawImage(this.startImg, this.playButton.x, this.playButton.y, this.playButton.width * 0.75, this.playButton.height * 0.9)       
+
     }
 
     addBottomButton(buttonImg){
         this.mapButton = new Button(buttonImg, this.canvas.width/2, this.canvas.height * 0.75, 425, 111);
         this.mapButton.setText("rgba(255, 255, 255, 1)", "Hvor i parken er spørsmålene?", 40)
         this.mapButton.setTextMaxWidth(425);
+        this.mapButton.buttonValue = "MapButton"
         // this.mapButton.setText("rgba(0, 0, 0, 1)", "Hvor i parken er spørsmålene?", 40)
 
     }
@@ -85,14 +94,13 @@ class MainMenu{
         
         if(this.playButton.clickButton(mousePos)){
             // this.changeScreenEvent.newScreen = "GameScreen";
-            this.changeScreenEvent.newScreen = "ScanScreen";
-            document.dispatchEvent(this.changeScreenEvent);
+            // this.changeScreenEvent.newScreen = "ScanScreen";
+            // document.dispatchEvent(this.changeScreenEvent);
         }
         
         if(this.mapButton.clickButton(mousePos)){
-            this.changeScreenEvent.newScreen = "MapScreen";
-            document.dispatchEvent(this.changeScreenEvent);
-
+            // this.changeScreenEvent.newScreen = "MapScreen";
+            // document.dispatchEvent(this.changeScreenEvent);
         }
 
         if(this.htpButton.clickButton(mousePos)){
@@ -104,6 +112,19 @@ class MainMenu{
             document.dispatchEvent(this.changeScreenEvent);
         }
 
+    }
+
+    checkButtonEvent(){
+        document.addEventListener("finishButtonAnimation", (e) =>{
+            if(e.buttonValue == "StartButton"){
+                this.changeScreenEvent.newScreen = "ScanScreen";
+                document.dispatchEvent(this.changeScreenEvent);
+            }
+            if(e.buttonValue == "MapButton"){
+                this.changeScreenEvent.newScreen = "MapScreen";
+                document.dispatchEvent(this.changeScreenEvent);
+            }
+        })
     }
 
 }

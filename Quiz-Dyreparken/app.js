@@ -19,8 +19,7 @@ let gameCircle;
 
 let menuTopButtonImg;
 let menuBottomButtonImg;
-let topLeftButtonImg;
-let topRightButtonImg;
+
 let htpButtonImg;
 let infoButtonImg;
 let backButtonImg;
@@ -41,6 +40,8 @@ let quizScreen = new QuizScreen();
 let mapScreen = new MapScreen();
 let qrCodeScreen = new QRCodeScreen();
 let diplomaScreen = new DiplomaScreen();
+
+let speechBubble;
 
 setup();
 setScreenSize();
@@ -213,6 +214,12 @@ function loadGameHUDImages(){
     gameCircle.onload = function(){
         quizScreen.circleImg = gameCircle;
     }
+
+    speechBubble = new Image();
+    speechBubble.src = "Assets/Arts/speechBubble.png"
+    speechBubble.onload = function(){
+        quizScreen.speechBubble = speechBubble;
+    }
 }
 
 function loadBackgroundImages(){
@@ -227,7 +234,13 @@ function loadButtonImages(){
     menuTopButtonImg = new Image();
     menuTopButtonImg.src = "Assets/Arts/buttons/Button_Menu__Main_Top.png";
     menuTopButtonImg.onload = function(){
-        mainMenu.addTopButton(menuTopButtonImg)
+        
+        let startLabelImg = new Image();
+        startLabelImg.src = "Assets/Arts/buttons/quistiansand_start.png"
+        startLabelImg.onload = function(){
+            mainMenu.addTopButton(menuTopButtonImg, startLabelImg)
+            // mainMenu.startImg = startLabelImg;
+        }
     }
 
     menuBottomButtonImg = new Image();
@@ -236,7 +249,7 @@ function loadButtonImages(){
         mainMenu.addBottomButton(menuBottomButtonImg)
     }
        
-    topLeftButtonImg = new Image();
+    let topLeftButtonImg = new Image();
     topLeftButtonImg.src = "Assets/Arts/buttons/Button_Gameplay_Top_Left_Bottom_Right.png";
     topLeftButtonImg.onload = function(){
 
@@ -248,7 +261,7 @@ function loadButtonImages(){
             topLeftButtonWrong.onload = function(){
 
 
-                topRightButtonImg = new Image();
+                let topRightButtonImg = new Image();
                 topRightButtonImg.src = "Assets/Arts/buttons/Button_Gameplay_Top_Right_Bottom_Left.png";
                 topRightButtonImg.onload = function(){
                     let topRightButtonRight = new Image();
@@ -265,7 +278,6 @@ function loadButtonImages(){
             }
         }
 
-        
     }
 
     htpButtonImg = new Image();

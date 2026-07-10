@@ -21,6 +21,7 @@ class QRCodeScreen{
         this.context = this.canvas.getContext("2d")
 
         this.textWrapper = new TextWrapper(this.context)
+        this.checkButtonEvent();
 
     }
 
@@ -64,10 +65,13 @@ class QRCodeScreen{
 
     addBackButton(buttonImg){
         this.backButton = new Button(buttonImg, this.canvas.width * 0.11, this.canvas.height * 0.075, 150, 150)
+        this.backButton.buttonValue = "BackButton"
+
     }
 
     addMapButton(buttonImg){
         this.mapButton = new Button(buttonImg, this.canvas.width * 0.5, this.canvas.height * 0.75, 400, 250)
+        this.mapButton.buttonValue = "MapButton"
     }
 
      checkClickedButton(mousePos){
@@ -77,15 +81,26 @@ class QRCodeScreen{
             document.dispatchEvent(this.changeScreenEvent);
         }
         if(this.mapButton.clickButton(mousePos)){
-            this.changeScreenEvent.newScreen = "MapScreen";
-            document.dispatchEvent(this.changeScreenEvent);
+            // this.changeScreenEvent.newScreen = "MapScreen";
+            // document.dispatchEvent(this.changeScreenEvent);
         }
         if(this.backButton.clickButton(mousePos)){
-              this.changeScreenEvent.newScreen = "MenuScreen";
-            document.dispatchEvent(this.changeScreenEvent);
+           
         }
      }
 
+     checkButtonEvent(){
+        document.addEventListener("finishButtonAnimation", (e) =>{
+            if(e.buttonValue == "BackButton"){
+                this.changeScreenEvent.newScreen = "MenuScreen";
+                document.dispatchEvent(this.changeScreenEvent);
+            }
+            // if(e.buttonValue == "MapButton"){
+            //     this.changeScreenEvent.newScreen = "MapScreen";
+            //     document.dispatchEvent(this.changeScreenEvent);
+            // }
+        })
+    }
 }
 
 export default QRCodeScreen;

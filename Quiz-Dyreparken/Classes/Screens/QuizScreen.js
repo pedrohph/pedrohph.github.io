@@ -15,7 +15,7 @@ class QuizScreen{
     frameImg;
     mainQuestImg = [,,,,];
     circleImg;
-
+    speechBubble;
 
     backButton;
     answerButton = [];
@@ -36,6 +36,7 @@ class QuizScreen{
         this.context = this.canvas.getContext("2d")
 
         this.textWrapper = new TextWrapper(this.context)
+        this.checkButtonEvent();
     }
 
 
@@ -65,6 +66,11 @@ class QuizScreen{
             this.backButton.draw()
         }
 
+        if(this.mainQuestImg[this.currentQuest] != undefined){
+            this.context.drawImage(this.mainQuestImg[this.currentQuest], this.canvas.width * 0.5 - 275, this.canvas.height * 0.28, 550, 550)
+        }
+
+
         // this.context.font = "normal "+this.msgSize+"px TW_Cen"
         this.context.font = "normal 40px Jost"
         this.context.textAlign = "center"
@@ -75,9 +81,14 @@ class QuizScreen{
 
       this.textWrapper.wrapText(this.questionMsg[this.currentQuest], this.canvas.width/2, 240, 600, 35)
 
-
       if(this.totalClicks == 1){
-        this.textWrapper.wrapText(this.tryAgainMsg, this.canvas.width/2, this.canvas.height * 0.965, 600, 35)
+            this.context.font = "normal 65px Jost"
+        this.context.textAlign = "center"
+
+        this.context.fillStyle  = "rgba(0,0,0,1)"
+        this.context.drawImage(this.speechBubble, this.canvas.width * 0.5 - 575/2, this.canvas.height * 0.4, 575, 460)
+
+        this.textWrapper.wrapText(this.tryAgainMsg, this.canvas.width * 0.5, this.canvas.height * 0.4 + 460 * 0.3, 375, 60)
       }
         // if(this.frameImg != undefined){
         //     this.context.drawImage(this.frameImg, this.canvas.width * 0.5 - 300, this.canvas.height * 0.255, 600, 600)
@@ -93,11 +104,6 @@ class QuizScreen{
             this.context.drawImage(this.circleImg, this.canvas.width * 0.5 - 20, this.canvas.height * 0.805, 40, 40)
 
         }
-
-          if(this.mainQuestImg[this.currentQuest] != undefined){
-            this.context.drawImage(this.mainQuestImg[this.currentQuest], this.canvas.width * 0.5 - 275, this.canvas.height * 0.28, 550, 550)
-        }
-
     }
 
     addButtonsImages(topLeftButtonImg, topRightButtonImg, topLeftCorrect, topLeftIncorrect, topRightCorrect, topRightIncorrect){
@@ -122,12 +128,13 @@ class QuizScreen{
 
     addBackButton(backButtonImg){
         this.backButton = new Button(backButtonImg, this.canvas.width * 0.11, this.canvas.height * 0.075, 150, 150)
+        this.backButton.buttonValue = "BackButton"
     }
 
     checkClickedButton(mousePos){
          if(this.backButton.clickButton(mousePos)){
-            this.changeScreenEvent.newScreen = "MenuScreen";
-            document.dispatchEvent(this.changeScreenEvent);
+            // this.changeScreenEvent.newScreen = "MenuScreen";
+            // document.dispatchEvent(this.changeScreenEvent);
             this.reset();
         }
 
@@ -141,13 +148,12 @@ class QuizScreen{
                     this.answerButton[i].correctButtonAnimation();
                     this.totalClicks = 2;
 
-                    this.changeStorage(true)
                     
                 }else{
                     this.answerButton[i].wrongButtonAnimation();
                     this.totalClicks += 1;
 
-                    this.changeStorage(false)
+                    //this.changeStorage(false)
 
                 }
             }
@@ -200,6 +206,13 @@ class QuizScreen{
         for(let i=0; i<4; i++){
             this.answerButton[i].setText("rgba(255,255,255,1)", shuffledAnswers[i], 33);
              this.answerButton[i].setTextMaxWidth(315);
+             if(i == this.rightAnswerId){
+                this.answerButton[i].buttonValue = "CorrectButton";
+
+             }else{
+                this.answerButton[i].buttonValue = "IncorrectButton";
+
+             }
         }
     }
 
@@ -220,6 +233,18 @@ class QuizScreen{
         }
 
         return shuffled;
+    }
+
+    checkButtonEvent(){
+        document.addEventListener("finishButtonAnimation", (e) =>{
+            if(e.buttonValue == "CorrectButton"){
+                this.changeStorage(true)
+
+            }
+            if(e.buttonValue == "IncorrectButton"){
+                this.changeStorage(false)
+            }
+        })
     }
 }
 

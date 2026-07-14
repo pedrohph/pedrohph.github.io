@@ -1,8 +1,10 @@
+import Particle from "./Classes/Particle.js";
 import DiplomaScreen from "./Classes/Screens/DiplomaScreen.js";
 import MainMenu from "./Classes/Screens/MainMenu.js";
 import MapScreen from "./Classes/Screens/MapScreen.js";
 import QRCodeScreen from "./Classes/Screens/QRCodeScreen.js";
 import QuizScreen from "./Classes/Screens/QuizScreen.js";
+import sfx from "./Classes/SoundManager.js";
 
 const canvas = document.getElementById("main-canvas")
 const context = canvas.getContext("2d")
@@ -33,6 +35,7 @@ let gameMascot;
 let gameNameLogo;
 let gameMap;
 
+let scanCodeImg;
 
 let currentScreen;
 let mainMenu = new MainMenu();
@@ -42,12 +45,11 @@ let qrCodeScreen = new QRCodeScreen();
 let diplomaScreen = new DiplomaScreen();
 
 let speechBubble;
-
 setup();
 setScreenSize();
 
 function setup(){
-    console.log("Quiz - V.: 0.0.2")
+    console.log("Quiz - V.: 0.0.4")
     loadMainMenuImages();
     loadBackgroundImages();
     loadButtonImages();
@@ -63,7 +65,7 @@ function setup(){
     createListeners()
 
     currentScreen = mainMenu;
-
+    sfx.music.play();
     update();
 }
 
@@ -182,6 +184,12 @@ function loadQuestionImg(){
     qrCodeImg.src = "Assets/Arts/qr-code.png";
     qrCodeImg.onload = function(){
         qrCodeScreen.addQRCodeButton(qrCodeImg)
+    }
+
+    let scanCodeImg = new Image();
+    scanCodeImg.src = "Assets/Arts/skannkoden.png";
+    scanCodeImg.onload = function(){
+        qrCodeScreen.scanCodeImg= scanCodeImg;
     }
 }
 
@@ -305,10 +313,12 @@ function loadButtonImages(){
 }
 
 function update(){
+
     requestAnimationFrame(update)
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     drawBackground();
+
 } 
 
 function drawBackground(){

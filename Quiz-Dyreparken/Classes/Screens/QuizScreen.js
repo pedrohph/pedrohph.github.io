@@ -1,4 +1,8 @@
+import { animate } from '../../node_modules/animejs/dist/bundles/anime.esm.min.js';
+
 import Button from "../Button.js";
+import Particle from "../Particle.js";
+import sfx from '../SoundManager.js';
 import TextWrapper from "../TextWrapper.js";
 
 class QuizScreen{
@@ -26,10 +30,27 @@ class QuizScreen{
     currentQuest = 0;
     totalClicks = 0;
 
+    particles = [];
+
     questionMsg = ["Hvilket år ble historien om Klatremus og de andre dyrene i Hakkebakkeskogen utgitt som bok?", "Hvor mange forskjellige dyrearter er det i Dyreparken Kristiansand?", "Sjimpansen Julius ble født andre juledag i Dyreparken Kristiansand, men i hvilket år?", "To av røverne i Kardemommeby heter Jesper og Kasper, men hva heter den tredje?", "Hva er det eneste Kaptein Sabeltann er redd for?"]
     answersMsg = [["1953", "1947", "1962", "1970"], ["Over 100","Ca 85","Ca 70", "Ca 50"], ["1979","1977","1981","1985"],["Jonatan", "Jonny","Jostein","Jarand"], ["Grusomme Gabriel","Andre pirater","Mørket", "Store bølger"]]
 
     tryAgainMsg = "Feil, men du får en sjanse til🤞🏻"
+
+    randomValue = { value:0};
+
+    changeScreenAnimation = animate(this.randomValue, {
+        autoplay: false,
+        value: 1,
+        duration: 500,
+        onComplete: () => {
+            this.changeStorage(false)
+        }
+    });
+
+    startAnimation = () => {
+        this.changeScreenAnimation.restart()
+    }
 
     constructor(){
         this.canvas = document.getElementById("main-canvas")
@@ -104,6 +125,20 @@ class QuizScreen{
             this.context.drawImage(this.circleImg, this.canvas.width * 0.5 - 20, this.canvas.height * 0.805, 40, 40)
 
         }
+
+        let allDead = true;
+        this.particles.forEach(p => {
+            if(allDead){
+                allDead = p.dead;
+            }
+            p.draw();
+        });
+
+        if(allDead && this.particles.length > 0){
+            this.particles = [];
+            this.changeStorage(true);
+        }
+
     }
 
     addButtonsImages(topLeftButtonImg, topRightButtonImg, topLeftCorrect, topLeftIncorrect, topRightCorrect, topRightIncorrect){
@@ -147,11 +182,11 @@ class QuizScreen{
                 if(i == this.rightAnswerId){
                     this.answerButton[i].correctButtonAnimation();
                     this.totalClicks = 2;
-
-                    
+                    sfx.correctAnswer.play();
                 }else{
                     this.answerButton[i].wrongButtonAnimation();
                     this.totalClicks += 1;
+                    sfx.incorrectAnswer.play();
 
                     //this.changeStorage(false)
 
@@ -238,13 +273,30 @@ class QuizScreen{
     checkButtonEvent(){
         document.addEventListener("finishButtonAnimation", (e) =>{
             if(e.buttonValue == "CorrectButton"){
-                this.changeStorage(true)
+                //this.changeStorage(true)
+                sfx.confettiSound.play();
+                this.createParticles(this.answerButton[this.rightAnswerId].x, this.answerButton[this.rightAnswerId].y, this.answerButton[this.rightAnswerId].y + this.answerButton[this.rightAnswerId].height);
 
             }
             if(e.buttonValue == "IncorrectButton"){
-                this.changeStorage(false)
+                // this.changeStorage(false)
+                // this.changeScreenAnimation.play()
+                this.changeScreenAnimation.restart()
+
             }
         })
+    }
+
+    createParticles(x1, y1, y2){
+        for(let i = 0; i<50; i++){
+            this.particles.push(new Particle(x1 + i*7.5, y1, Math.random()*12+15, Math.random() + 1))
+            this.particles[this.particles.length-1].setSpeed((Math.random() * 2 - 1) * 15, -30 * Math.random()*10+3)
+        }
+    
+        for(let i = 0; i<50; i++){
+            this.particles.push(new Particle(x1 + i*7.5, y2, Math.random()*12+15, Math.random() + 1))
+            this.particles[this.particles.length-1].setSpeed((Math.random() * 2 - 1) * 15, -30 * Math.random()*10+3)
+        }
     }
 }
 

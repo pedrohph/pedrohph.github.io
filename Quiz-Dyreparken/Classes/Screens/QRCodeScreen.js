@@ -16,6 +16,8 @@ class QRCodeScreen{
     textWrapper;
     clickOnMapText = "Klikk på kartet for å finne hvor QR-kodene er plassert i parken"
     scanCodeText = "SKANN QR-KODEN"
+
+    scanCodeImg //Temp
     constructor(){
         this.canvas = document.getElementById("main-canvas")
         this.context = this.canvas.getContext("2d")
@@ -30,6 +32,10 @@ class QRCodeScreen{
         this.context.drawImage(this.gameMascotImage, this.canvas.width /2 - 75/2, 92, 75, 100)
         this.context.drawImage(this.gameNameLogo, this.canvas.width /2 - 90, 0, 180, 110)
 
+        if(this.scanCodeImg != undefined)
+        this.context.drawImage(this.scanCodeImg, this.canvas.width /2 - 260, this.canvas.height * 0.19, 520, 125)
+
+
         this.context.font = "normal 50px Jost"
         this.context.textAlign = "right"
 
@@ -43,12 +49,12 @@ class QRCodeScreen{
         this.mapButton.draw();
         this.qrCodeButton.draw();
 
-         this.context.font = "normal 60px Jost"
-        this.context.textAlign = "center"
+        //  this.context.font = "normal 60px Jost"
+        // this.context.textAlign = "center"
 
-        this.context.fillStyle  = "rgba(0,0,0,1)"
+        // this.context.fillStyle  = "rgba(0,0,0,1)"
 
-        this.textWrapper.wrapText(this.scanCodeText, this.canvas.width/2, this.canvas.height * 0.23, 600, 55); 
+        // this.textWrapper.wrapText(this.scanCodeText, this.canvas.width/2, this.canvas.height * 0.23, 600, 55); 
 
         this.context.font = "normal 35px Jost"
         this.context.textAlign = "center"

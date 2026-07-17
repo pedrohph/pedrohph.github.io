@@ -17,6 +17,11 @@ class QRCodeScreen{
     clickOnMapText = "Klikk på kartet for å finne hvor QR-kodene er plassert i parken"
     scanCodeText = "SKANN QR-KODEN"
 
+    stars = [];
+    starPositionX = [];
+    starPositionY = [];
+
+
     scanCodeImg //Temp
     constructor(){
         this.canvas = document.getElementById("main-canvas")
@@ -61,7 +66,26 @@ class QRCodeScreen{
 
         this.context.fillStyle  = "rgba(0,0,0,1)"
 
-        this.textWrapper.wrapText(this.clickOnMapText, this.canvas.width/2, this.canvas.height * 0.9, 575, 30); 
+        this.textWrapper.wrapText(this.clickOnMapText, this.canvas.width/2, this.canvas.height * 0.9, 575, 30);
+        
+        this.drawStars();
+        
+    }
+
+    drawStars(){
+        for(let i = 0; i<this.stars.length; i++){
+            if(this.stars[i] == 1){
+                this.context.drawImage(this.startCorrect, this.starPositionX[i], this.starPositionY[i], 50, 50)
+            }else{
+                this.context.drawImage(this.startIncorrect, this.starPositionX[i], this.starPositionY[i], 50, 50)
+            }
+
+        }
+    }
+
+    addStarsImages(starCorrect, starIncorrect){
+        this.startCorrect = starCorrect; 
+        this.startIncorrect = starIncorrect; 
     }
 
     addQRCodeButton(buttonImg){
@@ -95,7 +119,7 @@ class QRCodeScreen{
         }
      }
 
-     checkButtonEvent(){
+    checkButtonEvent(){
         document.addEventListener("finishButtonAnimation", (e) =>{
             if(e.buttonValue == "BackButton"){
                 this.changeScreenEvent.newScreen = "MenuScreen";
@@ -106,6 +130,23 @@ class QRCodeScreen{
             //     document.dispatchEvent(this.changeScreenEvent);
             // }
         })
+    }
+
+    openScreen(){
+        let splittedResults = sessionStorage.getItem("QuestionResults").split(",");
+
+        this.stars = [];
+        this.starPositionX = [this.canvas.width /2 - 50/2, this.canvas.width /2 - 75, this.canvas.width /2 + 25, this.canvas.width /2 - 100, this.canvas.width /2 + 50]
+        this.starPositionY = [this.canvas.height * 0.13, this.canvas.height * 0.12, this.canvas.height * 0.12, this.canvas.height * 0.09, this.canvas.height * 0.09]
+
+
+        for(let i = 0; i<splittedResults.length; i++){
+            if(splittedResults[i] == 1){
+                this.stars.push(1); //correct star
+            }else if(splittedResults[i] == -2){
+                this.stars.push(0); //incorrect star
+            }
+        }
     }
 }
 

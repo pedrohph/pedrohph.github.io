@@ -34,6 +34,8 @@ let gameLogo;
 let gameMascot;
 let gameNameLogo;
 let gameMap;
+let starCorrect;
+let starIncorrect;
 
 let scanCodeImg;
 
@@ -49,7 +51,7 @@ setup();
 setScreenSize();
 
 function setup(){
-    console.log("Quiz - V.: 0.0.4")
+    console.log("Quiz - V.: 0.0.5")
     loadMainMenuImages();
     loadBackgroundImages();
     loadButtonImages();
@@ -228,6 +230,17 @@ function loadGameHUDImages(){
     speechBubble.onload = function(){
         quizScreen.speechBubble = speechBubble;
     }
+
+    starCorrect = new Image();
+    starCorrect.src = "Assets/Arts/objects/Gameplay_Star_Full.png";
+    starCorrect.onload = function(){
+        starIncorrect = new Image();
+        starIncorrect.src = "Assets/Arts/objects/Gameplay_Star_Empty.png";
+        starIncorrect.onload = function(){
+            quizScreen.addStarsImages(starCorrect, starIncorrect);
+            qrCodeScreen.addStarsImages(starCorrect, starIncorrect);
+        }
+    }
 }
 
 function loadBackgroundImages(){
@@ -375,6 +388,8 @@ function createListeners(){
         }else if(e.newScreen == "HTPScreen"){
            clearStorate();
         }
+
+        currentScreen.openScreen();
     })
 }
 

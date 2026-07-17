@@ -127,6 +127,8 @@ class MainMenu{
         })
     }
 
+    openScreen(){}
+
 }
 
 export default MainMenu;

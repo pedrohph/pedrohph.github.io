@@ -1,3 +1,4 @@
+import Particle from "../Particle.js";
 import TextWrapper from "../TextWrapper.js";
 
 class DiplomaScreen{
@@ -14,6 +15,8 @@ class DiplomaScreen{
 
     totalCorrectAnswers = 0;
     
+    particles = [];
+
     backButton;
     textWrapper;
     tittleText = "SUPERBRA"
@@ -58,6 +61,10 @@ class DiplomaScreen{
         this.context.font = "normal 70px Jost"
         this.context.strokeText(this.totalCorrectAnswers+"/5 rett!", this.canvas.width * 0.5, this.canvas.height*0.76)
         this.context.fillText(this.totalCorrectAnswers+"/5 rett!", this.canvas.width * 0.5, this.canvas.height*0.76) 
+
+        this.particles.forEach(p => {
+            p.draw();
+        });
     }
 
     checkTotalCorrectAnswers(){
@@ -79,10 +86,33 @@ class DiplomaScreen{
         }else{
             this.tittleText = ""
         }
+
+        if(this.totalCorrectAnswers >= 3){
+            this.createParticles();
+        }
     }
 
     checkClickedButton(mousePos){
     }
+
+    createParticles(){
+        for(let i = 0; i<100; i++){
+            this.particles.push(new Particle(this.canvas.width * 0.2 + i*4.5, this.canvas.height * 0.6, Math.random()*12+15, Math.random() + 1))
+            this.particles[this.particles.length-1].setSpeed((Math.random() * 2 - 1) * 15, -30 * Math.random()*10+3)
+        }
+    
+        for(let i = 0; i<100; i++){
+            this.particles.push(new Particle(this.canvas.width * 0.2 + i*4.5, this.canvas.height * 0.775, Math.random()*20+10, Math.random() + 1))
+            this.particles[this.particles.length-1].setSpeed((Math.random() * 2 - 1) * 50, -30 * Math.random()*10+3)
+        }
+
+        for(let i = 0; i<100; i++){
+            this.particles.push(new Particle(this.canvas.width * 0.2 + i*4.5, this.canvas.height * 0.925, Math.random()*12+15, Math.random() + 1))
+            this.particles[this.particles.length-1].setSpeed((Math.random() * 2 - 1) * 15, -30 * Math.random()*10+3)
+        }
+    }
+
+    openScreen(){}
 }
 
 export default DiplomaScreen;

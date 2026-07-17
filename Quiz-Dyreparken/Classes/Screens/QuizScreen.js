@@ -30,27 +30,32 @@ class QuizScreen{
     currentQuest = 0;
     totalClicks = 0;
 
+    startCorrect;
+    startIncorrect;
+
     particles = [];
+
+    stars = [];
+    starPositionX = [];
+    starPositionY = [];
+
 
     questionMsg = ["Hvilket år ble historien om Klatremus og de andre dyrene i Hakkebakkeskogen utgitt som bok?", "Hvor mange forskjellige dyrearter er det i Dyreparken Kristiansand?", "Sjimpansen Julius ble født andre juledag i Dyreparken Kristiansand, men i hvilket år?", "To av røverne i Kardemommeby heter Jesper og Kasper, men hva heter den tredje?", "Hva er det eneste Kaptein Sabeltann er redd for?"]
     answersMsg = [["1953", "1947", "1962", "1970"], ["Over 100","Ca 85","Ca 70", "Ca 50"], ["1979","1977","1981","1985"],["Jonatan", "Jonny","Jostein","Jarand"], ["Grusomme Gabriel","Andre pirater","Mørket", "Store bølger"]]
 
-    tryAgainMsg = "Feil, men du får en sjanse til🤞🏻"
+    // tryAgainMsg = "Feil, men du får en sjanse til🤞🏻"
+    tryAgainMsg = "Feil, men du får en sjanse til"
 
     randomValue = { value:0};
 
     changeScreenAnimation = animate(this.randomValue, {
         autoplay: false,
         value: 1,
-        duration: 500,
+        duration: 1500,
         onComplete: () => {
             this.changeStorage(false)
         }
     });
-
-    startAnimation = () => {
-        this.changeScreenAnimation.restart()
-    }
 
     constructor(){
         this.canvas = document.getElementById("main-canvas")
@@ -88,7 +93,7 @@ class QuizScreen{
         }
 
         if(this.mainQuestImg[this.currentQuest] != undefined){
-            this.context.drawImage(this.mainQuestImg[this.currentQuest], this.canvas.width * 0.5 - 275, this.canvas.height * 0.28, 550, 550)
+            this.context.drawImage(this.mainQuestImg[this.currentQuest], this.canvas.width * 0.5 - 525/2, this.canvas.height * 0.29, 525, 525)
         }
 
 
@@ -97,10 +102,8 @@ class QuizScreen{
         this.context.textAlign = "center"
 
         this.context.fillStyle  = "rgba(0,0,0,1)"
-        // this.context.strokeText(this.msg, this.x + this.width * this.butonSize.width/2, yFirstText)
-      //  this.context.fillText("Hvilket år ble historien om Klatremus og de andre dyrene i Hakkebakkeskogen utgitt som bok?", this.canvas.width/2, 275)
-
-      this.textWrapper.wrapText(this.questionMsg[this.currentQuest], this.canvas.width/2, 240, 600, 35)
+       
+        this.textWrapper.wrapText(this.questionMsg[this.currentQuest], this.canvas.width/2, 255, 600, 35)
 
       if(this.totalClicks == 1){
             this.context.font = "normal 65px Jost"
@@ -139,6 +142,7 @@ class QuizScreen{
             this.changeStorage(true);
         }
 
+        this.drawStars();
     }
 
     addButtonsImages(topLeftButtonImg, topRightButtonImg, topLeftCorrect, topLeftIncorrect, topRightCorrect, topRightIncorrect){
@@ -168,8 +172,6 @@ class QuizScreen{
 
     checkClickedButton(mousePos){
          if(this.backButton.clickButton(mousePos)){
-            // this.changeScreenEvent.newScreen = "MenuScreen";
-            // document.dispatchEvent(this.changeScreenEvent);
             this.reset();
         }
 
@@ -187,9 +189,6 @@ class QuizScreen{
                     this.answerButton[i].wrongButtonAnimation();
                     this.totalClicks += 1;
                     sfx.incorrectAnswer.play();
-
-                    //this.changeStorage(false)
-
                 }
             }
         }
@@ -235,6 +234,15 @@ class QuizScreen{
     }
 
     setButtonsOptions(answers){
+        let results = sessionStorage.getItem("QuestionResults");
+        let splittedResults = results.split(",");
+
+        let currentQuestionID = parseInt(sessionStorage.getItem("CurrentQuestion"))
+        if(splittedResults[currentQuestionID] == -1){
+            this.totalClicks = 1;
+        }else{
+            this.totalClicks = 0;
+        }
 
         let shuffledAnswers = this.shuffleQuestions(answers);
         console.log(shuffledAnswers)
@@ -270,6 +278,22 @@ class QuizScreen{
         return shuffled;
     }
 
+    drawStars(){
+        for(let i = 0; i<this.stars.length; i++){
+            if(this.stars[i] == 1){
+                this.context.drawImage(this.startCorrect, this.starPositionX[i], this.starPositionY[i], 50, 50)
+            }else{
+                this.context.drawImage(this.startIncorrect, this.starPositionX[i], this.starPositionY[i], 50, 50)
+            }
+
+        }
+    }
+
+    addStarsImages(starCorrect, starIncorrect){
+        this.startCorrect = starCorrect; 
+        this.startIncorrect = starIncorrect; 
+    }
+
     checkButtonEvent(){
         document.addEventListener("finishButtonAnimation", (e) =>{
             if(e.buttonValue == "CorrectButton"){
@@ -279,9 +303,12 @@ class QuizScreen{
 
             }
             if(e.buttonValue == "IncorrectButton"){
-                // this.changeStorage(false)
-                // this.changeScreenAnimation.play()
-                this.changeScreenAnimation.restart()
+                console.log(this.totalClicks)
+                if(this.totalClicks == 1){
+                    this.changeStorage(false)
+                }else{
+                    this.changeScreenAnimation.restart()
+                }
 
             }
         })
@@ -296,6 +323,23 @@ class QuizScreen{
         for(let i = 0; i<50; i++){
             this.particles.push(new Particle(x1 + i*7.5, y2, Math.random()*12+15, Math.random() + 1))
             this.particles[this.particles.length-1].setSpeed((Math.random() * 2 - 1) * 15, -30 * Math.random()*10+3)
+        }
+    }
+
+    openScreen(){
+        let splittedResults = sessionStorage.getItem("QuestionResults").split(",");
+
+        this.stars = [];
+        this.starPositionX = [this.canvas.width /2 - 50/2, this.canvas.width /2 - 75, this.canvas.width /2 + 25, this.canvas.width /2 - 100, this.canvas.width /2 + 50]
+        this.starPositionY = [this.canvas.height * 0.13, this.canvas.height * 0.12, this.canvas.height * 0.12, this.canvas.height * 0.09, this.canvas.height * 0.09]
+
+
+        for(let i = 0; i<splittedResults.length; i++){
+            if(splittedResults[i] == 1){
+                this.stars.push(1); //correct star
+            }else if(splittedResults[i] == -2){
+                this.stars.push(0); //incorrect star
+            }
         }
     }
 }

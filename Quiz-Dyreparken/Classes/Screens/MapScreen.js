@@ -75,6 +75,8 @@ class MapScreen{
             }
         }
     }
+
+    openScreen(){}
 }
 
 export default MapScreen;

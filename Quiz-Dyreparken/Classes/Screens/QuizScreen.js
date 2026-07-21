@@ -1,4 +1,4 @@
-import { animate } from '../../node_modules/animejs/dist/bundles/anime.esm.min.js';
+import { animate, spring } from '../../node_modules/animejs/dist/bundles/anime.esm.min.js';
 
 import Button from "../Button.js";
 import Particle from "../Particle.js";
@@ -45,16 +45,31 @@ class QuizScreen{
 
     // tryAgainMsg = "Feil, men du får en sjanse til🤞🏻"
     tryAgainMsg = "Feil, men du får en sjanse til"
+    emojiMsg = "🤞🏻"
 
     randomValue = { value:0};
+    starSize = {size: 3}
 
     changeScreenAnimation = animate(this.randomValue, {
         autoplay: false,
         value: 1,
         duration: 1500,
+        onBegin: () =>{
+            this.addStar(false)
+        },
         onComplete: () => {
             this.changeStorage(false)
         }
+    });
+
+    createStarAnimation = animate(this.starSize, {
+        autoplay: false,
+        size: 1,
+        duration: 500,
+        ease: spring({
+            bounce: 0.6,
+            duration: 500
+        })
     });
 
     constructor(){
@@ -85,7 +100,7 @@ class QuizScreen{
 
             this.context.fillStyle  = "rgba(255,255,255,1)"
 
-            this.context.fillText(sessionStorage.getItem("TotalQuestionsAnswered")+"/5", this.canvas.width * 0.92, 110)
+            this.context.fillText((parseInt(sessionStorage.getItem("TotalQuestionsAnswered"))+1)+"/5", this.canvas.width * 0.92, 110)
         }
 
         if(this.backButton != undefined){
@@ -110,9 +125,13 @@ class QuizScreen{
         this.context.textAlign = "center"
 
         this.context.fillStyle  = "rgba(0,0,0,1)"
-        this.context.drawImage(this.speechBubble, this.canvas.width * 0.5 - 575/2, this.canvas.height * 0.4, 575, 460)
+        this.context.drawImage(this.speechBubble, this.canvas.width * 0.5 - 600/2, this.canvas.height * 0.4, 600, 460)
 
-        this.textWrapper.wrapText(this.tryAgainMsg, this.canvas.width * 0.5, this.canvas.height * 0.4 + 460 * 0.3, 375, 60)
+        this.textWrapper.wrapText(this.tryAgainMsg, this.canvas.width * 0.475, this.canvas.height * 0.4 + 460 * 0.3, 375, 60)
+
+        this.context.font = "normal 90px Jost"
+        this.context.fillText(this.emojiMsg, this.canvas.width * 0.716, this.canvas.height * 0.59)
+
       }
         // if(this.frameImg != undefined){
         //     this.context.drawImage(this.frameImg, this.canvas.width * 0.5 - 300, this.canvas.height * 0.255, 600, 600)
@@ -260,7 +279,6 @@ class QuizScreen{
     }
 
     shuffleQuestions(answers){
-
         let correctAnswer = answers[0];
         let shuffled = [];
         let originalOne = [answers[0], answers[1], answers[2], answers[3]]
@@ -280,12 +298,19 @@ class QuizScreen{
 
     drawStars(){
         for(let i = 0; i<this.stars.length; i++){
-            if(this.stars[i] == 1){
-                this.context.drawImage(this.startCorrect, this.starPositionX[i], this.starPositionY[i], 50, 50)
-            }else{
-                this.context.drawImage(this.startIncorrect, this.starPositionX[i], this.starPositionY[i], 50, 50)
+            if(sessionStorage.getItem("TotalQuestionsAnswered") == i){    
+                if(this.stars[i] == 1){
+                    this.context.drawImage(this.startCorrect, this.starPositionX[i] - (50 * this.starSize.size)/2, this.starPositionY[i] - (50 * this.starSize.size)/2, 50 * this.starSize.size, 50 * this.starSize.size)
+                }else{
+                    this.context.drawImage(this.startIncorrect, this.starPositionX[i]- (50 * this.starSize.size)/2, this.starPositionY[i]- (50 * this.starSize.size)/2, 50* this.starSize.size, 50* this.starSize.size)
+                }
+            }else{    
+                if(this.stars[i] == 1){
+                    this.context.drawImage(this.startCorrect, this.starPositionX[i] - 50/2, this.starPositionY[i] - 50/2, 50, 50)
+                }else{
+                    this.context.drawImage(this.startIncorrect, this.starPositionX[i]- 50/2, this.starPositionY[i]- 50/2, 50, 50)
+                }
             }
-
         }
     }
 
@@ -298,6 +323,7 @@ class QuizScreen{
         document.addEventListener("finishButtonAnimation", (e) =>{
             if(e.buttonValue == "CorrectButton"){
                 //this.changeStorage(true)
+                this.addStar(true)
                 sfx.confettiSound.play();
                 this.createParticles(this.answerButton[this.rightAnswerId].x, this.answerButton[this.rightAnswerId].y, this.answerButton[this.rightAnswerId].y + this.answerButton[this.rightAnswerId].height);
 
@@ -307,6 +333,7 @@ class QuizScreen{
                 if(this.totalClicks == 1){
                     this.changeStorage(false)
                 }else{
+                    // this.addStar(false)
                     this.changeScreenAnimation.restart()
                 }
 
@@ -326,15 +353,26 @@ class QuizScreen{
         }
     }
 
+    addStar(correct){
+        if(correct){
+            this.stars.push(1); //correct star
+
+        }else{
+            this.stars.push(0); //incorrect star
+        }
+        this.createStarAnimation.restart();
+
+    }
     openScreen(){
         let splittedResults = sessionStorage.getItem("QuestionResults").split(",");
 
         this.stars = [];
-        this.starPositionX = [this.canvas.width /2 - 50/2, this.canvas.width /2 - 75, this.canvas.width /2 + 25, this.canvas.width /2 - 100, this.canvas.width /2 + 50]
-        this.starPositionY = [this.canvas.height * 0.13, this.canvas.height * 0.12, this.canvas.height * 0.12, this.canvas.height * 0.09, this.canvas.height * 0.09]
+        this.starPositionX = [this.canvas.width /2, this.canvas.width /2 - 50, this.canvas.width /2 + 50, this.canvas.width /2 - 75, this.canvas.width /2 + 75]
+        this.starPositionY = [this.canvas.height * 0.13 + 25, this.canvas.height * 0.12+ 25, this.canvas.height * 0.12+ 25, this.canvas.height * 0.09+ 25, this.canvas.height * 0.09+ 25]
 
 
         for(let i = 0; i<splittedResults.length; i++){
+            // this.addStar( splittedResults[i] == 1)
             if(splittedResults[i] == 1){
                 this.stars.push(1); //correct star
             }else if(splittedResults[i] == -2){

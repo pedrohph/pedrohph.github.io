@@ -11,6 +11,7 @@
    user-select: none;
 }
 
+@media screen and (orientation: portrait) {
 #main-canvas{
     position: absolute;
     background: white;
@@ -24,19 +25,58 @@
 
     margin: auto;
 }
+}
+
+@media screen and (orientation: landscape) {
+       #main-canvas{
+        /* Rotate the content container */
+    
+        top: 100%;
+        left: 0;
+        transform: rotate(90deg);
+        transform-origin: left top;
+        /* Set content width to viewport height */
+        width: 100vh;
+        /* Set content height to viewport width */
+        height: 100vw;
+        /* overflow-x: hidden; */
+        position: absolute;
+      
+      }
+    }
 
 @supports (height: 100dvh) {
-    #main-canvas{
-        position: absolute;
-        background: white;
-        width: 100dvw;
-        height: 100dvh;
-        top: 0;
-        left: 0;
+     @media screen and (orientation: portrait) {
+        #main-canvas{
+            position: absolute;
+            background: white;
+            width: 100dvw;
+            height: 100dvh;
+            top: 0;
+            left: 0;
 
-        max-width: 100dvw;
-        max-height: 100dvh;
+            max-width: 100dvw;
+            max-height: 100dvh;
+        
+            margin: auto;
+        }
+    }
+
+    @media screen and (orientation: landscape) {
+       #main-canvas{
+        /* Rotate the content container */
     
-        margin: auto;
+        top: 100%;
+        left: 0;
+        transform: rotate(-90deg);
+        transform-origin: left top;
+        /* Set content width to viewport height */
+        width: 100dvh;
+        /* Set content height to viewport width */
+        height: 100dvw;
+        /* overflow-x: hidden; */
+        position: absolute;
+      
+      }
     }
   }

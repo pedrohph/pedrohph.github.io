@@ -1,5 +1,6 @@
 import Particle from "./Classes/Particle.js";
 import DiplomaScreen from "./Classes/Screens/DiplomaScreen.js";
+import IntroScreen from "./Classes/Screens/IntroScreen.js";
 import MainMenu from "./Classes/Screens/MainMenu.js";
 import MapScreen from "./Classes/Screens/MapScreen.js";
 import QRCodeScreen from "./Classes/Screens/QRCodeScreen.js";
@@ -45,13 +46,14 @@ let quizScreen = new QuizScreen();
 let mapScreen = new MapScreen();
 let qrCodeScreen = new QRCodeScreen();
 let diplomaScreen = new DiplomaScreen();
+let introScreen = new IntroScreen();
 
 let speechBubble;
 setup();
 setScreenSize();
 
 function setup(){
-    console.log("Quiz - V.: 0.0.6")
+    console.log("Quiz - V.: 0.0.7")
     loadMainMenuImages();
     loadBackgroundImages();
     loadButtonImages();
@@ -66,7 +68,7 @@ function setup(){
 
     createListeners()
 
-    currentScreen = mainMenu;
+    currentScreen = introScreen;
     sfx.music.play();
     update();
 }
@@ -74,39 +76,13 @@ function setup(){
 function setScreenSize(){
     canvas.width=720
     canvas.height= 1280
-
-    // let aspectRatio = (screen.width/screen.height)
-    // if(screen.orientation.type.includes("landscape")){
-    //     if(aspectRatio >= 1.28 && aspectRatio <1.5){
-    //         // canvas.width = 1180;
-    //         // canvas.height= 820
-    //         canvas.width = 1366;
-    //         canvas.height= 1024;
-    //     }else{
-    //         canvas.width=1280
-    //         canvas.height= 720
-    //     }
-    // }else{
-    //     if(aspectRatio <= 0.77 && aspectRatio > 0.66){
-    //         canvas.width = 1024;
-    //         canvas.height= 1366;
-
-    //     }else{
-    //         canvas.width=720
-    //         canvas.height= 1280
-    //     }
-        
-    // }
 }
 
 function refreshStorages(){
     //Set all to local storage
      let currentDate = new Date().toJSON().slice(0, 10);
-    console.log(currentDate);
-    if(sessionStorage.getItem("TokenDate") == currentDate){
-        
+    if(localStorage.getItem("TokenDate") == currentDate){      
         console.log("Same day token")
-
     }else{
         clearStorate();
     }
@@ -115,12 +91,12 @@ function refreshStorages(){
 function clearStorate(){
         let currentDate = new Date().toJSON().slice(0, 10);
         console.log("Clear storage")
-        sessionStorage.clear()
+        localStorage.clear()
 
-        sessionStorage.setItem("TokenDate", currentDate)
-        sessionStorage.setItem("QuestionResults","0,0,0,0,0"); //1 = correct, -1 incorrect but can try again, -2 wrong twice, 0 = not answered
-        sessionStorage.setItem("CurrentQuestion",0)
-        sessionStorage.setItem("TotalQuestionsAnswered",0)
+        localStorage.setItem("TokenDate", currentDate)
+        localStorage.setItem("QuestionResults","0,0,0,0,0"); //1 = correct, -1 incorrect but can try again, -2 wrong twice, 0 = not answered
+        localStorage.setItem("CurrentQuestion",0)
+        localStorage.setItem("TotalQuestionsAnswered",0)
 }
 
 function loadMainMenuImages(){
@@ -128,6 +104,7 @@ function loadMainMenuImages(){
     gameLogo.src = "Assets/Arts/new_game_logo.png";
     gameLogo.onload = function(){
         mainMenu.gameLogo = gameLogo;
+        introScreen.gameLogo = gameLogo;
         diplomaScreen.gameLogo = gameLogo;
 
     }
@@ -153,6 +130,7 @@ function loadMainMenuImages(){
         mainMenu.frameImg = frameMainMenuImg;
         quizScreen.frameImg = frameMainMenuImg;
         diplomaScreen.frameImg = frameMainMenuImg;
+        introScreen.frameImg = frameMainMenuImg;
     }
 
     frameNailImg = new Image();
@@ -160,7 +138,7 @@ function loadMainMenuImages(){
     frameNailImg.onload = function(){
         mainMenu.nailImg = frameNailImg;
         diplomaScreen.nailImg = frameNailImg;
-
+        introScreen.nailImg = frameNailImg;
     }
 
     frameStringImg = new Image();
@@ -168,7 +146,13 @@ function loadMainMenuImages(){
     frameStringImg.onload = function(){
         mainMenu.stringImg = frameStringImg;
         diplomaScreen.stringImg = frameStringImg;
+        introScreen.stringImg = frameStringImg;
+    }
 
+    let quizTextImage = new Image();
+    quizTextImage.src = "Assets/Arts/QuizName.png"
+    quizTextImage.onload = function(){
+        introScreen.quizTextImg = quizTextImage;
     }
 }
 
@@ -249,6 +233,7 @@ function loadBackgroundImages(){
     portraitBackground.onload = function(){
         mainMenu.backgroundImage = portraitBackground;
         diplomaScreen.backgroundImage = portraitBackground;
+        introScreen.backgroundImage = portraitBackground;
     }
 }
 function loadButtonImages(){
@@ -344,28 +329,45 @@ canvas.addEventListener('click', (event) => {
     if(supportsTouch){
         return;
     }
-    mouse.x =  canvas.width * event.x / window.innerWidth
-    mouse.y = canvas.height * event.y /window.innerHeight
+
+    if(screen.orientation.type.includes("landscape")){
+
+        mouse.x =  canvas.width - canvas.width * event.y /window.innerHeight
+        mouse.y = canvas.height * event.x / window.innerWidth
+    }else{
+        mouse.x =  canvas.width * event.x / window.innerWidth
+        mouse.y = canvas.height * event.y /window.innerHeight
+    }
+
+
 
     clickEvent()
 })
 
 canvas.addEventListener("touchstart", (event) => {
-    let touch = event.targetTouches[0] || event.changedTouches[0];    
+    let touch = event.targetTouches[0] || event.changedTouches[0];
+
    
-    mouse.x =  canvas.width * touch.pageX / window.innerWidth
-    mouse.y = canvas.height * touch.pageY /window.innerHeight
+    if(screen.orientation.type.includes("landscape")){
+
+        mouse.x =  canvas.width - canvas.width * touch.pageY /window.innerHeight
+        mouse.y = canvas.height * touch.pageX / window.innerWidth
+    }else{
+
+        mouse.x =  canvas.width * touch.pageX / window.innerWidth
+        mouse.y = canvas.height * touch.pageY /window.innerHeight
+    }
+   
 
 
     clickEvent()
 }, false)
 
 function createListeners(){
-    console.log(mainMenu)
     document.addEventListener("ChangeScreen", (e) =>{
         if(e.newScreen == "GameScreen"){
             // let currentQuestion = localStorage.getItem("CurrentQuestion")
-            let currentQuestion = sessionStorage.getItem("CurrentQuestion")
+            let currentQuestion = localStorage.getItem("CurrentQuestion")
             if(currentQuestion < 5){
                 // quizScreen.currentQuest = Math.floor(Math.random() * 5);
                 quizScreen.currentQuest = currentQuestion;
@@ -394,7 +396,6 @@ function createListeners(){
 }
 
 function clickEvent(){
-
     // if(!sleepDisabled){
     //     noSleep.enable();
     //     sleepDisabled = true;

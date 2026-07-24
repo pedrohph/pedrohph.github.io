@@ -47,7 +47,7 @@ class QRCodeScreen{
         this.context.fillStyle  = "rgba(255,255,255,1)"
         // this.context.fillStyle  = "rgba(0,0,0,1)"
 
-         this.context.fillText(sessionStorage.getItem("TotalQuestionsAnswered")+"/5", this.canvas.width * 0.92, 110)
+         this.context.fillText(localStorage.getItem("TotalQuestionsAnswered")+"/5", this.canvas.width * 0.92, 110)
 
 
         this.backButton.draw();
@@ -133,7 +133,7 @@ class QRCodeScreen{
     }
 
     openScreen(){
-        let splittedResults = sessionStorage.getItem("QuestionResults").split(",");
+        let splittedResults = localStorage.getItem("QuestionResults").split(",");
 
         this.stars = [];
         this.starPositionX = [this.canvas.width /2 - 50/2, this.canvas.width /2 - 75, this.canvas.width /2 + 25, this.canvas.width /2 - 100, this.canvas.width /2 + 50]

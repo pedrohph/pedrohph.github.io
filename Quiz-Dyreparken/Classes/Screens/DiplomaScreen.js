@@ -68,7 +68,7 @@ class DiplomaScreen{
     }
 
     checkTotalCorrectAnswers(){
-        let results = sessionStorage.getItem("QuestionResults");
+        let results = localStorage.getItem("QuestionResults");
         let splittedResults = results.split(",");
 
         splittedResults.forEach(answer => {

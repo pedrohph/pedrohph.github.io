@@ -100,7 +100,7 @@ class QuizScreen{
 
             this.context.fillStyle  = "rgba(255,255,255,1)"
 
-            this.context.fillText((parseInt(sessionStorage.getItem("TotalQuestionsAnswered"))+1)+"/5", this.canvas.width * 0.92, 110)
+            this.context.fillText((parseInt(localStorage.getItem("TotalQuestionsAnswered"))+1)+"/5", this.canvas.width * 0.92, 110)
         }
 
         if(this.backButton != undefined){
@@ -216,16 +216,16 @@ class QuizScreen{
     }
 
     changeStorage(correct){
-        let results = sessionStorage.getItem("QuestionResults");
+        let results = localStorage.getItem("QuestionResults");
         let splittedResults = results.split(",");
 
-        let currentQuestionID = parseInt(sessionStorage.getItem("CurrentQuestion"))
-        let totalCorrectAnswers = sessionStorage.getItem("TotalQuestionsAnswered")
-        let TotalQuestionsAnswered = parseInt(sessionStorage.getItem("TotalQuestionsAnswered"))
+        let currentQuestionID = parseInt(localStorage.getItem("CurrentQuestion"))
+        let totalCorrectAnswers = localStorage.getItem("TotalQuestionsAnswered")
+        let TotalQuestionsAnswered = parseInt(localStorage.getItem("TotalQuestionsAnswered"))
 
         if(correct){
             splittedResults[currentQuestionID] = 1
-            sessionStorage.setItem("TotalQuestionsAnswered", totalCorrectAnswers+1)
+            localStorage.setItem("TotalQuestionsAnswered", totalCorrectAnswers+1)
         }else{
             splittedResults[currentQuestionID] -= 1;
         } 
@@ -234,9 +234,9 @@ class QuizScreen{
             currentQuestionID += 1;
             TotalQuestionsAnswered += 1;
 
-             sessionStorage.setItem("TotalQuestionsAnswered", TotalQuestionsAnswered);
-            sessionStorage.setItem("CurrentQuestion", currentQuestionID)
-            sessionStorage.setItem("QuestionResults",splittedResults.toString()); //1 = correct, -1 incorrect but can try again, -2 wrong twice, 0 = not answered
+             localStorage.setItem("TotalQuestionsAnswered", TotalQuestionsAnswered);
+            localStorage.setItem("CurrentQuestion", currentQuestionID)
+            localStorage.setItem("QuestionResults",splittedResults.toString()); //1 = correct, -1 incorrect but can try again, -2 wrong twice, 0 = not answered
 
             if(TotalQuestionsAnswered >= 5){
                 this.changeScreenEvent.newScreen = "DiplomaScreen";
@@ -248,15 +248,15 @@ class QuizScreen{
              this.reset();
         }
 
-        sessionStorage.setItem("QuestionResults",splittedResults.toString()); //1 = correct, -1 incorrect but can try again, -2 wrong twice, 0 = not answered
+        localStorage.setItem("QuestionResults",splittedResults.toString()); //1 = correct, -1 incorrect but can try again, -2 wrong twice, 0 = not answered
        
     }
 
     setButtonsOptions(answers){
-        let results = sessionStorage.getItem("QuestionResults");
+        let results = localStorage.getItem("QuestionResults");
         let splittedResults = results.split(",");
 
-        let currentQuestionID = parseInt(sessionStorage.getItem("CurrentQuestion"))
+        let currentQuestionID = parseInt(localStorage.getItem("CurrentQuestion"))
         if(splittedResults[currentQuestionID] == -1){
             this.totalClicks = 1;
         }else{
@@ -298,7 +298,7 @@ class QuizScreen{
 
     drawStars(){
         for(let i = 0; i<this.stars.length; i++){
-            if(sessionStorage.getItem("TotalQuestionsAnswered") == i){    
+            if(localStorage.getItem("TotalQuestionsAnswered") == i){    
                 if(this.stars[i] == 1){
                     this.context.drawImage(this.startCorrect, this.starPositionX[i] - (50 * this.starSize.size)/2, this.starPositionY[i] - (50 * this.starSize.size)/2, 50 * this.starSize.size, 50 * this.starSize.size)
                 }else{
@@ -364,7 +364,7 @@ class QuizScreen{
 
     }
     openScreen(){
-        let splittedResults = sessionStorage.getItem("QuestionResults").split(",");
+        let splittedResults = localStorage.getItem("QuestionResults").split(",");
 
         this.stars = [];
         this.starPositionX = [this.canvas.width /2, this.canvas.width /2 - 50, this.canvas.width /2 + 50, this.canvas.width /2 - 75, this.canvas.width /2 + 75]

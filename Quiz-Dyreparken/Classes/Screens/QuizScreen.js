@@ -45,7 +45,8 @@ class QuizScreen{
 
     // tryAgainMsg = "Feil, men du får en sjanse til🤞🏻"
     tryAgainMsg = "Feil, men du får en sjanse til"
-    emojiMsg = "🤞🏻"
+    // emojiMsg = "🤞🏻"
+    emojiImage;
 
     randomValue = { value:0};
     starSize = {size: 3}
@@ -129,8 +130,10 @@ class QuizScreen{
 
         this.textWrapper.wrapText(this.tryAgainMsg, this.canvas.width * 0.475, this.canvas.height * 0.4 + 460 * 0.3, 375, 60)
 
-        this.context.font = "normal 90px Jost"
-        this.context.fillText(this.emojiMsg, this.canvas.width * 0.716, this.canvas.height * 0.59)
+        // this.context.font = "normal 90px Jost"
+        // this.context.fillText(this.emojiMsg, this.canvas.width * 0.716, this.canvas.height * 0.59)
+
+            this.context.drawImage(this.emojiImage, this.canvas.width * 0.625, this.canvas.height * 0.51, 130, 130)
 
       }
         // if(this.frameImg != undefined){

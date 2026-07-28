@@ -1,4 +1,5 @@
 import Particle from "../Particle.js";
+import sfx from "../SoundManager.js";
 import TextWrapper from "../TextWrapper.js";
 
 class DiplomaScreen{
@@ -89,7 +90,10 @@ class DiplomaScreen{
 
         if(this.totalCorrectAnswers >= 3){
             this.createParticles();
+            sfx.confettiSound.play();
         }
+        sfx.correctAnswer.play();
+
     }
 
     checkClickedButton(mousePos){

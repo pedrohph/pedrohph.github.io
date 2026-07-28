@@ -60,9 +60,10 @@ class MapScreen{
          this.context.font = "normal 30px Jost"
         this.context.textAlign = "center"
 
+        let totalLines = this.textWrapper.checkTotalLines(this.infoTexts[this.currentButtonID], 350);
         this.context.fillStyle  = "rgba(255,255,255,1)"
-        this.textWrapper.wrapText(this.infoTexts[this.currentButtonID], this.localButton[this.currentButtonID].x + 75, this.localButton[this.currentButtonID].y + 160, 350, 35);
-
+        
+        this.textWrapper.wrapText(this.infoTexts[this.currentButtonID], this.localButton[this.currentButtonID].x + 75, this.localButton[this.currentButtonID].y + 310 - (170/2 + totalLines * 0.5 * 30), 350, 35);
     }
 
     addBackButton(backButtonImg){

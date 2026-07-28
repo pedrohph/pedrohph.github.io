@@ -27,6 +27,8 @@ let htpButtonImg;
 let infoButtonImg;
 let backButtonImg;
 let basicButtonImg;
+let emojiImg;
+
 
 let frameMainMenuImg;
 let frameNailImg;
@@ -53,7 +55,7 @@ setup();
 setScreenSize();
 
 function setup(){
-    console.log("Quiz - V.: 0.0.7")
+    console.log("Quiz - V.: 0.0.8")
     loadMainMenuImages();
     loadBackgroundImages();
     loadButtonImages();
@@ -224,6 +226,12 @@ function loadGameHUDImages(){
             quizScreen.addStarsImages(starCorrect, starIncorrect);
             qrCodeScreen.addStarsImages(starCorrect, starIncorrect);
         }
+    }
+
+    emojiImg = new Image();
+    emojiImg.src = "Assets/Arts/crossedFingers.png"
+    emojiImg.onload = function(){
+        quizScreen.emojiImage = emojiImg;
     }
 }
 

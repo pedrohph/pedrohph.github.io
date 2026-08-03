@@ -564,7 +564,7 @@ function drawEndingScreen(){
   context.fillText("GRATULERER DERE FANT KRYPTERINGSKODEN!".toUpperCase(), canvas.width/2, 80, 1500*0.5)
 
   context.font = "normal 25px Impact";
- context.fillText("DYREPARKEN/HACKED".toUpperCase(), canvas.width/2, canvas.height - 50)
+ context.fillText("TAKK FRA DYREPARKEN KRISTIANSAND".toUpperCase(), canvas.width/2, canvas.height - 50)
 
   context.fillStyle = "rgb(0,255,0)";
   context.textAlign = "center";
@@ -1049,6 +1049,7 @@ function setGameStatus(newGameStatus){
 }
 
 function startIntroVideo(){
+    introVideo.currentTime = 7;
     introVideo.classList.add("video-focus")
     introVideo.play()
     .then(() => console.log('Playback started'))

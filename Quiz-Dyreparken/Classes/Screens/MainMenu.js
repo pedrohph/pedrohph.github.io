@@ -92,16 +92,16 @@ class MainMenu{
 
     checkClickedButton(mousePos){
         
-        // if(this.playButton.clickButton(mousePos)){
-        //     // this.changeScreenEvent.newScreen = "GameScreen";
-        //     // this.changeScreenEvent.newScreen = "ScanScreen";
-        //     // document.dispatchEvent(this.changeScreenEvent);
-        // }
+        if(this.playButton.clickButton(mousePos)){
+            // this.changeScreenEvent.newScreen = "GameScreen";
+            // this.changeScreenEvent.newScreen = "ScanScreen";
+            // document.dispatchEvent(this.changeScreenEvent);
+        }
         
-        // if(this.mapButton.clickButton(mousePos)){
-        //     // this.changeScreenEvent.newScreen = "MapScreen";
-        //     // document.dispatchEvent(this.changeScreenEvent);
-        // }
+        if(this.mapButton.clickButton(mousePos)){
+            // this.changeScreenEvent.newScreen = "MapScreen";
+            // document.dispatchEvent(this.changeScreenEvent);
+        }
 
         if(this.htpButton.clickButton(mousePos)){
             this.changeScreenEvent.newScreen = "HTPScreen";

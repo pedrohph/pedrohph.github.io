@@ -145,7 +145,7 @@ function setup() {
   sfx.natureSound.play()
   sfx.tigerSound.play()
 
-  console.log("Version 0.0.24")
+  console.log("Version 0.0.25")
   // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -1049,7 +1049,7 @@ function setGameStatus(newGameStatus){
 }
 
 function startIntroVideo(){
-    introVideo.currentTime = 7;
+    // introVideo.currentTime = 7;
     introVideo.classList.add("video-focus")
     introVideo.play()
     .then(() => console.log('Playback started'))

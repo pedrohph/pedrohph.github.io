@@ -35,9 +35,9 @@ class MainMenu{
          if(this.mapButton != undefined){
             this.mapButton.draw()
         }
-        //  if(this.htpButton != undefined){
-        //     this.htpButton.draw()
-        // }
+         if(this.htpButton != undefined){
+            this.htpButton.draw()
+        }
         //  if(this.infoButton != undefined){
         //     this.infoButton.draw()
         // }
@@ -82,7 +82,7 @@ class MainMenu{
 
     addHTPButton(buttonImg){
         // this.htpButton = new Button(buttonImg, this.canvas.width * 0.35, this.canvas.height * 0.85, 175, 175);
-        this.htpButton = new Button(buttonImg, this.canvas.width * 0.5, this.canvas.height * 0.95, 355, 210);
+        this.htpButton = new Button(buttonImg, this.canvas.width * 0.5, this.canvas.height * 0.95, 150, 150);
 
     }
 
@@ -92,16 +92,16 @@ class MainMenu{
 
     checkClickedButton(mousePos){
         
-        if(this.playButton.clickButton(mousePos)){
-            // this.changeScreenEvent.newScreen = "GameScreen";
-            // this.changeScreenEvent.newScreen = "ScanScreen";
-            // document.dispatchEvent(this.changeScreenEvent);
-        }
+        // if(this.playButton.clickButton(mousePos)){
+        //     // this.changeScreenEvent.newScreen = "GameScreen";
+        //     // this.changeScreenEvent.newScreen = "ScanScreen";
+        //     // document.dispatchEvent(this.changeScreenEvent);
+        // }
         
-        if(this.mapButton.clickButton(mousePos)){
-            // this.changeScreenEvent.newScreen = "MapScreen";
-            // document.dispatchEvent(this.changeScreenEvent);
-        }
+        // if(this.mapButton.clickButton(mousePos)){
+        //     // this.changeScreenEvent.newScreen = "MapScreen";
+        //     // document.dispatchEvent(this.changeScreenEvent);
+        // }
 
         if(this.htpButton.clickButton(mousePos)){
             this.changeScreenEvent.newScreen = "HTPScreen";

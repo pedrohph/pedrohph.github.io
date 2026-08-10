@@ -55,7 +55,7 @@ setup();
 setScreenSize();
 
 function setup(){
-    console.log("Quiz - V.: 0.0.8")
+    console.log("Quiz - V.: 0.0.9")
     loadMainMenuImages();
     loadBackgroundImages();
     loadButtonImages();

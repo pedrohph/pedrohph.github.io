@@ -34,6 +34,7 @@ let timerToCheck = 30;
 
 let underTasksValue = 80;
 let overTasksValue = 120;
+let usedAdminTool = false;
 
 let current_task = 0;
 let current_text_line1 = "FÅ LAGPULS"
@@ -145,7 +146,7 @@ function setup() {
   sfx.natureSound.play()
   sfx.tigerSound.play()
 
-  console.log("Version 0.0.25")
+  console.log("Version 0.0.26")
   // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -311,12 +312,25 @@ function checkObjective(){
   }
 
   if(tasks[current_task].Task_type == 0){
-    if(averageBPM >= tasks[current_task].Goal && averageBPM > 0){
-      completePulseTask()
+    if(usedAdminTool){
+      if(averageBPM >= overTasksValue && averageBPM > 0){
+        completePulseTask()
+      }
+    }else{
+      if(averageBPM >= tasks[current_task].Goal && averageBPM > 0){
+        completePulseTask()
+      }
     }
+    
   }else if(tasks[current_task].Task_type == 1){
-    if(averageBPM <= tasks[current_task].Goal && averageBPM > 0){
-      completePulseTask();
+    if(usedAdminTool){
+      if(averageBPM <= underTasksValue && averageBPM > 0){
+        completePulseTask()
+      }
+    }else{
+      if(averageBPM <= tasks[current_task].Goal && averageBPM > 0){
+        completePulseTask();
+      }
     }
   }
 }
@@ -767,10 +781,18 @@ function drawTextOnCenter(){
   current_text_line2 = tasks[current_task].Tittle_line_2;
 
  if(tasks[current_task].Task_type == 0){
-    current_text_line2 += tasks[current_task].Goal
+    if(usedAdminTool){
+      current_text_line2 += overTasksValue
+    }else{
+      current_text_line2 += tasks[current_task].Goal
+    }
+    
   }else if(tasks[current_task].Task_type == 1){
-    current_text_line2 += tasks[current_task].Goal
-
+    if(usedAdminTool){
+      current_text_line2 += underTasksValue;
+    }else{
+      current_text_line2 += tasks[current_task].Goal
+    }
   }
 
   context.strokeStyle = "black";
@@ -1158,6 +1180,8 @@ function openAdminTool(){
 confirmButton.addEventListener('click', () =>{
   underTasksValue = underPulseInput.value
   overTasksValue = overPulseInput.value
+
+  usedAdminTool = true;
   timer.setTotalTimer(newTimeInput.value * 60);
 
 

@@ -1190,7 +1190,6 @@ confirmButton.addEventListener('click', () =>{
    }
   
 
-  console.log("Confirmou!")
   adminTool.classList.add('hidden')
   adminToolIsOpen = false;
 

@@ -3,7 +3,7 @@ import sfx from "./classes/soundmanager.js";
 import TaskReader from "./classes/taskreader.js";
 import particle from "./classes/particles.js";
 import movingImage from "./classes/movingImage.js";
-import AdminTool from "./classes/admin-tool/adminTool.js";
+import AdminTool from "./classes/admin-tool/AdminTool.js";
 
 const Game_Status = Object.freeze({
   ONBOARDING: '0',

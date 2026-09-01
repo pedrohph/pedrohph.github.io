@@ -3,6 +3,7 @@ import sfx from "./classes/soundmanager.js";
 import TaskReader from "./classes/taskreader.js";
 import particle from "./classes/particles.js";
 import movingImage from "./classes/movingImage.js";
+import AdminTool from "./classes/admin-tool/adminTool.js";
 
 const Game_Status = Object.freeze({
   ONBOARDING: '0',
@@ -50,6 +51,8 @@ let typeBarAlpha = 1;
 
 let fullCode = ""
 let endAlpha = 1;
+
+let admTool = new AdminTool()
 
 let taskReader = new TaskReader();
 let tasks = [];
@@ -116,14 +119,6 @@ let endTimer = 0;
 
 
 let adminToolIsOpen = false;
-const adminTool = document.getElementById('admin-tool-container');
-const confirmButton = document.getElementById('button-confirm-admin-tool');
-const cancelButton = document.getElementById('button-cancel-admin-tool');
-const underPulseInput = document.getElementById('under-pulse-value');
-const overPulseInput = document.getElementById('over-pulse-value');
-const newTimeInput = document.getElementById('new-game-time');
-
-const passwordInputs = document.getElementsByClassName('password-input')
 
 let alarm59 = -1;
 let alarm56 = -1;
@@ -142,12 +137,15 @@ let movingUn;
 
 let endParticles = []
 let isScreenshotDone = false;
+
+let passwordList = [];
+let pulseList = [];
 setup();
 
 function setup() {
   sfx.introSound.play()
 
-  console.log("Version 0.0.10")
+  console.log("Version 0.0.11")
   // navigator.permissions.query({ name: "Bluetooth" }).then(console.log("Ok")).catch("Error!")
   canvas.width=1280
   canvas.height= 720
@@ -156,12 +154,14 @@ function setup() {
   inputBox.onkeydown = handleEnter;
   document.body.appendChild(inputBox);
 
+  createListeners();
+
   loadBoxes()
   initWebcam();
   update();
-  tasks = taskReader.getTasks();
 
   createEndParticles()
+
 }
 
 
@@ -188,7 +188,6 @@ function update(){
   if(CurrentStatus == Game_Status.ENDVIDEO){
 
     if(endVideo.currentTime >= 5 && !sfx.endMusic.playing()){
-      // console.log("Disparou")
       sfx.music.stop()
       sfx.aplauseSound.play()
       sfx.endMusic.play();
@@ -301,6 +300,7 @@ function getHigherAndLower(){
 function checkObjective(){
   if(tasks == [] || tasks == undefined){
     tasks = taskReader.getTasks();
+    getTasksValues();
   }
 
   if(current_task >= tasks.length){
@@ -316,27 +316,39 @@ function checkObjective(){
   }
 
   if(tasks[current_task].Task_type == 0){
-    if(usedAdminTool){
-      if(averageBPM >= overTasksValue && averageBPM > 0){
-        completePulseTask()
-      }
-    }else{
-      if(averageBPM >= tasks[current_task].Goal && averageBPM > 0){
-        completePulseTask()
-      }
-    }
-    
-  }else if(tasks[current_task].Task_type == 1){
-    if(usedAdminTool){
-      if(averageBPM <= underTasksValue && averageBPM > 0){
-        completePulseTask()
-      }
-    }else{
-      if(averageBPM <= tasks[current_task].Goal && averageBPM > 0){
-        completePulseTask();
-      }
+    if(averageBPM >= pulseList[current_task/2] && averageBPM > 0){
+      completePulseTask();
     }
   }
+
+  if(tasks[current_task].Task_type == 1){
+    if(averageBPM <= pulseList[current_task/2] && averageBPM > 0){
+      completePulseTask();
+    }
+  }
+
+  // if(tasks[current_task].Task_type == 0){
+  //   if(usedAdminTool){
+  //     if(averageBPM >= overTasksValue && averageBPM > 0){
+  //       completePulseTask()
+  //     }
+  //   }else{
+  //     if(averageBPM >= tasks[current_task].Goal && averageBPM > 0){
+  //       completePulseTask()
+  //     }
+  //   }
+    
+  // }else if(tasks[current_task].Task_type == 1){
+  //   if(usedAdminTool){
+  //     if(averageBPM <= underTasksValue && averageBPM > 0){
+  //       completePulseTask()
+  //     }
+  //   }else{
+  //     if(averageBPM <= tasks[current_task].Goal && averageBPM > 0){
+  //       completePulseTask();
+  //     }
+  //   }
+  // }
 }
 
 function loadBoxes(){
@@ -818,19 +830,9 @@ function drawTextOnCenter(){
   current_text_line1 = tasks[current_task].Tittle_line_1;
   current_text_line2 = tasks[current_task].Tittle_line_2;
 
-  if(tasks[current_task].Task_type == 0){
-    if(usedAdminTool){
-      current_text_line2 += overTasksValue
-    }else{
-      current_text_line2 += tasks[current_task].Goal
-    }
-    
-  }else if(tasks[current_task].Task_type == 1){
-    if(usedAdminTool){
-      current_text_line2 += underTasksValue;
-    }else{
-      current_text_line2 += tasks[current_task].Goal
-    }
+  if(tasks[current_task].Task_type != 2){
+    //  current_text_line2 += tasks[current_task].Goal
+    current_text_line2 += pulseList[current_task/2]
   }
 
   context.strokeStyle = "black";
@@ -912,7 +914,7 @@ function handleEnter(e) {
   }
 
   if(e.keyCode == 13){
-    completeQuest(tasks[current_task].Goal.includes(inputBox.value.toUpperCase()));
+    completeQuest(passwordList[Math.floor(current_task/2)].includes(inputBox.value.toUpperCase()));
     inputBox.value = ""
   }
     
@@ -1197,61 +1199,16 @@ function getGameAveragePulse(){
 function openAdminTool(){
   if(tasks.length == 0){
     tasks = taskReader.getTasks();
+    getTasksValues();
   }
+
+
  
-  adminTool.classList.remove('hidden')
   adminToolIsOpen = true;
-
-  underPulseInput.value = underTasksValue;
-  overPulseInput.value = overTasksValue;
-
-  console.log(passwordInputs[0].id)
-  for(let i = 0; i<passwordInputs.length; i++){
-    tasks.forEach(t => {
-    if("FINN KONVOLUTT " +passwordInputs[i].id == t.Tittle_line_1){
-      passwordInputs[i].value = t.Goal;
-    }
-  })
-  }
-  
-}
-
-confirmButton.addEventListener('click', () =>{
-  underTasksValue = underPulseInput.value
-  overTasksValue = overPulseInput.value
-
-  usedAdminTool = true;
-  timer.setTotalTimer(newTimeInput.value * 60);
-
-
-   for(let i = 0; i<passwordInputs.length; i++){
-    getTaskPasswords(passwordInputs[i].id, passwordInputs[i].value)
-   }
-  
-
-  adminTool.classList.add('hidden')
-  adminToolIsOpen = false;
-
-})
-
-cancelButton.addEventListener('click', () =>{
-  adminTool.classList.add('hidden')
-  adminToolIsOpen = false;
-
-})
-
-function getTaskPasswords(taskCode, newPassword){
-
-  let passwords = newPassword.split(',')
-  tasks.forEach(t => {
-    if(t.Tittle_line_1 == "FINN KONVOLUTT "+ taskCode.toUpperCase()){
-      t.Goal = []
-      passwords.forEach(np => {
-        t.Goal.push(np.toUpperCase().trim())
-      });
-    }
-  });
-  
+  getTaskCodes()
+   getPulseTasks()
+  admTool.openScreen(pulseList, passwordList, getTaskCodes(), getPulseTasks());
+  // admTool.openScreen(pulseList, passwordList);
 }
 
 function createEndParticles(){
@@ -1341,3 +1298,61 @@ function drawPhotoCounter(){
       context.textBaseline = "alphabetic";
 }
 
+function getTasksValues(){
+  for(let i = 0; i<tasks.length; i++){
+    if(tasks[i].Task_type == 2){
+      passwordList.push(tasks[i].Goal);
+    }else{
+      pulseList.push(tasks[i].Goal)
+    }
+  }
+  
+  console.log(passwordList, pulseList)
+
+}
+
+function getTaskCodes(){
+  let tasksCodes = []
+
+  tasks.forEach(t => {
+    if(t.Task_type == 2){
+      tasksCodes.push(t.Tittle_line_1[t.Tittle_line_1.length-1]);
+    }  
+  });
+
+  return tasksCodes;
+} 
+
+function getPulseTasks(){
+   let pulseTasks = []
+
+  tasks.forEach(t => {
+    if(t.Task_type != 2){
+      pulseTasks.push(t.Task_type);
+    }  
+  });
+  console.log(pulseTasks);
+
+  return pulseTasks;
+
+}
+
+function createListeners(){
+  document.addEventListener("tasksReady", () =>{
+    tasks = taskReader.getTasks();
+    getTasksValues();
+  });
+
+  document.addEventListener("cancelAdminChanges", () =>{
+    adminToolIsOpen = false;
+  })
+
+  document.addEventListener("confirmAdminChanges", () =>{
+    adminToolIsOpen = false;
+
+    passwordList = admTool.passwordValues;
+    pulseList = admTool.pulseValues;
+
+     timer.setTotalTimer(admTool.newTime * 60);
+  })
+}

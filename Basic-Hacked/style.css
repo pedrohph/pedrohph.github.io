@@ -66,16 +66,12 @@
 }
 
 .admin-tool .password-input{
-    width: 70%;
+    width: 75%;
 }
 
 .pulse-input{
     width: 50px;
     font-family: 'Sauber';
-}
-
-.admin-tool input.pulse-input{
-    margin-right: 75px;
 }
 
 .admin-tool button.red-button{
@@ -85,10 +81,6 @@
 .admin-tool button.green-button{
     background-color: green;
 }
-/* .admin-tool div.header {
-  grid-area: header;
-  text-align: center;
-} */
 
 .admin-tool button{
     border: 0px;  
@@ -99,6 +91,65 @@
     margin-right: 50px;
 
 }
+
+.task-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: minmax(50px, auto);
+  grid: center;
+  
+}
+.task-grid button{
+    height: 90%;
+}
+
+
+/* .task-grid > div {
+  border: 2px solid rgb(233 171 88);
+  background-color: rgb(233 171 88 / 50%);
+  color: #d9480f;
+} */
+
+.task-grid .l-buttons{
+    grid-column: 1;
+    grid-row: 1/3;
+}
+
+.task-grid .r-buttons{
+    grid-column: 4;
+    grid-row: 1/3;
+}
+
+.task-grid .set-pulse-values{
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.task-grid .pulse-inputs{
+    grid-column: 3;
+    grid-row: 1;
+}
+
+.task-grid .pulse-input{
+    grid-column: 3;
+    grid-row: 1;
+}
+
+.task-grid .set-password-values{
+    grid-column: 2/4;
+    grid-row: 2;
+}
+
+.task-grid .button-cancel{
+    grid-column: 1;
+    grid-row: 3;
+}
+
+.task-grid .button-confirm{
+    grid-column: 4;
+    grid-row: 3;
+}
+
 
 @supports (height: 100dvh) {
     #main-canvas{

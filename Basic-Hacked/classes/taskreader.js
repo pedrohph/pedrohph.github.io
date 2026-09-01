@@ -1,4 +1,5 @@
 class TaskReader{
+    taskReadyEvent = new CustomEvent('tasksReady');
     tasks = [];
 
     path = "resources/tasks.json"
@@ -13,7 +14,8 @@ class TaskReader{
             .then((res) => res.json())
             .then((data) => {
                 this.tasks = data["tasks"]
-                console.log("Tasks ready")
+                console.log("Tasks Ready")
+                document.dispatchEvent(this.taskReadyEvent);
             });
     }
 
